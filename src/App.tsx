@@ -1,4 +1,3 @@
-import React from 'react'
 import Auth from './Auth/Auth'
 import { Route, Routes } from 'react-router-dom'
 import LandingPage from './user/page/LandingPage'
@@ -7,12 +6,13 @@ import WishList from './user/page/WishList'
 import Thrift from './user/page/Thrift'
 import ThriftList from './user/page/ThriftList'
 import Product from './user/page/Product'
-import ChatWidget from './user/page/Chatwidget'
-import Checkout from './user/page/CheckOut'
+
 import AddressPage from './user/page/AddressPage'
 import Payment from './user/page/Payment'
 import Allproduct from './user/page/Allproduct'
 import Orders from './user/page/Orders'
+import Checkout from './user/page/Checkout'
+import ChatWidget from './user/page/ChatWidget'
 
 function App() {
   return (
