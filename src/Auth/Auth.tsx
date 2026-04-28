@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, type JSX } from "react";
 import { motion } from "motion/react";
 import {
   ShoppingBag,
@@ -25,15 +25,19 @@ import { useNavigate } from "react-router";
 import GoogleLogin from "./GoogleLogin";
 
 
+type Step = "email" | "login-password" | "login-otp" | "reg-verify" | "reg-form";
+type ToastType = "success" | "error" | "info";
+
+
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-function validateEmail(v) {
+function validateEmail(v: string): string {
   if (!v.trim()) return "Email is required";
   if (!emailRegex.test(v)) return "Enter a valid email address";
   return "";
 }
 
-function validatePassword(v) {
+function validatePassword(v: string): string {
   if (!v) return "Password is required";
   if (v.length < 6) return "Minimum 6 characters";
   if (!/[A-Z]/.test(v)) return "At least one uppercase letter";
@@ -41,26 +45,32 @@ function validatePassword(v) {
   return "";
 }
 
-function validateUsername(v:any) {
+function validateUsername(v: string): string {
   if (!v.trim()) return "Username is required";
   if (v.trim().length < 3) return "At least 3 characters";
   if (/\s/.test(v)) return "No spaces allowed";
   return "";
 }
 
-function validateConfirm(pass:string, confirm:any) {
+function validateConfirm(pass: string, confirm: string): string {
   if (!confirm) return "Please confirm your password";
   if (pass !== confirm) return "Passwords do not match";
   return "";
 }
 
 
-function Toast({ msg, type }) {
+
+interface ToastProps {
+  msg: string;
+  type: ToastType;
+}
+
+function Toast({ msg, type }: ToastProps) {
   if (!msg) return null;
-  const colours:any = {
+  const colours: Record<ToastType, string> = {
     success: "bg-green-50 border-green-400 text-green-800",
-    error: "bg-red-50   border-red-400   text-red-800",
-    info: "bg-gray-50  border-gray-400  text-gray-800",
+    error:   "bg-red-50   border-red-400   text-red-800",
+    info:    "bg-gray-50  border-gray-400  text-gray-800",
   };
   const Icon = type === "success" ? CheckCircle2 : AlertCircle;
   return (
@@ -75,8 +85,9 @@ function Toast({ msg, type }) {
   );
 }
 
+// ─── FieldError ──────────────────────────────────────────────────────────────
 
-function FieldError({ msg }) {
+function FieldError({ msg }: { msg: string | false | undefined }) {
   if (!msg) return null;
   return (
     <motion.p
@@ -90,9 +101,15 @@ function FieldError({ msg }) {
   );
 }
 
+// ─── InputWrapper ─────────────────────────────────────────────────────────────
 
+interface InputWrapperProps {
+  error: string | false | undefined;
+  touched: boolean | undefined;
+  children: React.ReactNode;
+}
 
-function InputWrapper({ error, touched, children }) {
+function InputWrapper({ error, touched, children }: InputWrapperProps) {
   const border =
     touched && error
       ? "border-red-400 focus-within:ring-red-100"
@@ -108,8 +125,16 @@ function InputWrapper({ error, touched, children }) {
   );
 }
 
+// ─── OtpInput ─────────────────────────────────────────────────────────────────
 
-function OtpInput({ value, onChange, error, touched }) {
+interface OtpInputProps {
+  value: string;
+  onChange: (val: string) => void;
+  error: string;
+  touched: boolean | undefined;
+}
+
+function OtpInput({ value, onChange, error, touched }: OtpInputProps) {
   const border =
     touched && error
       ? "border-red-400"
@@ -125,10 +150,9 @@ function OtpInput({ value, onChange, error, touched }) {
           .map((_, i) => (
             <div
               key={i}
-              className={`h-12 border-2 rounded-lg flex items-center justify-center font-bold text-lg transition-colors ${value[i]
-                  ? "border-black bg-gray-100"
-                  : border + " bg-white"
-                }`}
+              className={`h-12 border-2 rounded-lg flex items-center justify-center font-bold text-lg transition-colors ${
+                value[i] ? "border-black bg-gray-100" : border + " bg-white"
+              }`}
             >
               {value[i] || ""}
             </div>
@@ -148,25 +172,24 @@ function OtpInput({ value, onChange, error, touched }) {
 }
 
 
-function Auth({ register = false }) {
+function Auth({ register = false }: { register?: boolean }) {
   const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail]                     = useState("");
+  const [username, setUsername]               = useState("");
+  const [password, setPassword]               = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [otp, setOtp] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
+  const [otp, setOtp]                         = useState("");
+  const [showPassword, setShowPassword]       = useState(false);
 
   const [touched, setTouched] = useState<Record<string, boolean>>({});
-  const touch = (field) => setTouched((p) => ({ ...p, [field]: true }));
+  const touch = (field: string) => setTouched((p) => ({ ...p, [field]: true }));
 
-  type Step = "email" | "login-password" | "login-otp" | "reg-verify" | "reg-form";
-  const [step, setStep] = useState<Step>("email");
+  const [step, setStep]       = useState<Step>("email");
   const [loading, setLoading] = useState(false);
-  const [toast, setToast] = useState({ msg: "", type: "info" });
+  const [toast, setToast]     = useState<{ msg: string; type: ToastType }>({ msg: "", type: "info" });
 
-  const [regOtpTimer, setRegOtpTimer] = useState(0);
+  const [regOtpTimer, setRegOtpTimer]     = useState(0);
   const [loginOtpTimer, setLoginOtpTimer] = useState(0);
 
   useEffect(() => {
@@ -181,22 +204,22 @@ function Auth({ register = false }) {
     return () => clearInterval(id);
   }, [loginOtpTimer]);
 
-  const showToast = (msg, type = "info") => {
+  const showToast = (msg: string, type: ToastType = "info") => {
     setToast({ msg, type });
     setTimeout(() => setToast({ msg: "", type: "info" }), 4000);
   };
 
-
   useEffect(() => { setTouched({}); }, [step]);
 
-
   const errors = {
-    email: validateEmail(email),
-    password: validatePassword(password),
-    username: validateUsername(username),
+    email:           validateEmail(email),
+    password:        validatePassword(password),
+    username:        validateUsername(username),
     confirmPassword: validateConfirm(password, confirmPassword),
-    otp: otp.length > 0 && otp.length < 6 ? "Enter all 6 digits" : "",
+    otp:             otp.length > 0 && otp.length < 6 ? "Enter all 6 digits" : "",
   };
+
+
 
   const handleContinue = async () => {
     touch("email");
@@ -211,7 +234,7 @@ function Auth({ register = false }) {
       } else {
         await sendRegistrationOtp();
       }
-    } catch (err:any) {
+    } catch (err: any) {
       const status = err?.response?.status;
       if (status === 400 || status === 404) {
         await sendRegistrationOtp();
@@ -231,7 +254,7 @@ function Auth({ register = false }) {
       setOtp("");
       setStep("reg-verify");
       showToast("OTP sent! Check your email.", "success");
-    } catch (err:any) {
+    } catch (err: any) {
       showToast(err?.response?.data?.message ?? "Failed to send OTP.", "error");
     } finally {
       setLoading(false);
@@ -252,7 +275,7 @@ function Auth({ register = false }) {
       } else {
         showToast(res?.message ?? "Verification failed.", "error");
       }
-    } catch (err) {
+    } catch (err: any) {
       showToast(err?.response?.data?.message ?? "Invalid or expired OTP.", "error");
     } finally {
       setLoading(false);
@@ -270,7 +293,7 @@ function Auth({ register = false }) {
       const res = await Register({ username, email, password });
       showToast(res?.message ?? "Account created!", "success");
       setTimeout(() => navigate("/login"), 1500);
-    } catch (err) {
+    } catch (err: any) {
       showToast(err?.response?.data?.message ?? "Registration failed.", "error");
     } finally {
       setLoading(false);
@@ -289,7 +312,7 @@ function Auth({ register = false }) {
       saveToken(token);
       showToast("Login successful!", "success");
       setTimeout(() => navigate("/"), 800);
-    } catch (err) {
+    } catch (err: any) {
       showToast(err?.response?.data?.message ?? "Invalid credentials.", "error");
     } finally {
       setLoading(false);
@@ -304,7 +327,7 @@ function Auth({ register = false }) {
       setOtp("");
       setStep("login-otp");
       showToast("OTP sent! Check your email.", "success");
-    } catch (err) {
+    } catch (err: any) {
       showToast(err?.response?.data?.message ?? "Failed to send OTP.", "error");
     } finally {
       setLoading(false);
@@ -324,7 +347,7 @@ function Auth({ register = false }) {
       saveToken(token);
       showToast("Login successful!", "success");
       setTimeout(() => navigate("/"), 800);
-    } catch (err) {
+    } catch (err: any) {
       showToast(err?.response?.data?.message ?? "Invalid or expired OTP.", "error");
     } finally {
       setLoading(false);
@@ -339,7 +362,7 @@ function Auth({ register = false }) {
         <label className="text-sm font-medium text-gray-700 mb-1 block">
           Email address
         </label>
-        <InputWrapper error={errors.email} touched={touched.email}>
+        <InputWrapper error={errors.email} touched={touched["email"]}>
           <input
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -349,11 +372,11 @@ function Auth({ register = false }) {
             placeholder="you@example.com"
             className="w-full outline-none text-sm bg-transparent"
           />
-          {touched.email && !errors.email && (
+          {touched["email"] && !errors.email && (
             <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
           )}
         </InputWrapper>
-        <FieldError msg={touched.email && errors.email} />
+        <FieldError msg={touched["email"] && errors.email} />
       </div>
 
       <button
@@ -385,7 +408,10 @@ function Auth({ register = false }) {
 
       <div>
         <label className="text-sm font-medium text-gray-700 mb-1 block">Password</label>
-        <InputWrapper error={touched.password && !password ? "Required" : ""} touched={touched.password}>
+        <InputWrapper
+          error={touched["password"] && !password ? "Required" : ""}
+          touched={touched["password"]}
+        >
           <input
             type={showPassword ? "text" : "password"}
             value={password}
@@ -395,11 +421,15 @@ function Auth({ register = false }) {
             placeholder="Enter your password"
             className="w-full outline-none text-sm bg-transparent"
           />
-          <button type="button" onClick={() => setShowPassword((p) => !p)} className="text-gray-400 hover:text-gray-600">
+          <button
+            type="button"
+            onClick={() => setShowPassword((p) => !p)}
+            className="text-gray-400 hover:text-gray-600"
+          >
             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         </InputWrapper>
-        <FieldError msg={touched.password && !password && "Password is required"} />
+        <FieldError msg={touched["password"] && !password && "Password is required"} />
         <p className="text-sm text-black cursor-pointer hover:underline mt-1 text-end font-medium">
           Forgot password?
         </p>
@@ -432,8 +462,8 @@ function Auth({ register = false }) {
         <br />Valid for 5 minutes.
       </p>
 
-      <OtpInput value={otp} onChange={setOtp} error={errors.otp} touched={touched.otp} />
-      <FieldError msg={touched.otp && errors.otp} />
+      <OtpInput value={otp} onChange={setOtp} error={errors.otp} touched={touched["otp"]} />
+      <FieldError msg={touched["otp"] && errors.otp} />
 
       <button
         type="button"
@@ -445,7 +475,11 @@ function Auth({ register = false }) {
       </button>
 
       <div className="flex justify-between items-center">
-        <button type="button" onClick={() => { setStep("login-password"); setOtp(""); }} className="text-sm text-gray-500 hover:underline">
+        <button
+          type="button"
+          onClick={() => { setStep("login-password"); setOtp(""); }}
+          className="text-sm text-gray-500 hover:underline"
+        >
           ← Use password instead
         </button>
         <button
@@ -467,8 +501,8 @@ function Auth({ register = false }) {
         <br />Enter it below to verify your email.
       </p>
 
-      <OtpInput value={otp} onChange={setOtp} error={errors.otp} touched={touched.otp} />
-      <FieldError msg={touched.otp && errors.otp} />
+      <OtpInput value={otp} onChange={setOtp} error={errors.otp} touched={touched["otp"]} />
+      <FieldError msg={touched["otp"] && errors.otp} />
 
       <button
         type="button"
@@ -480,7 +514,11 @@ function Auth({ register = false }) {
       </button>
 
       <div className="flex justify-between items-center">
-        <button type="button" onClick={() => { setStep("email"); setOtp(""); }} className="text-sm text-gray-500 hover:underline">
+        <button
+          type="button"
+          onClick={() => { setStep("email"); setOtp(""); }}
+          className="text-sm text-gray-500 hover:underline"
+        >
           ← Change email
         </button>
         <button
@@ -497,7 +535,6 @@ function Auth({ register = false }) {
 
   const renderRegFormStep = () => (
     <div className="space-y-4">
-      {/* verified email */}
       <div>
         <label className="text-sm font-medium text-gray-700 mb-1 block">Email</label>
         <div className="flex items-center border border-gray-200 bg-gray-50 rounded-lg px-3 py-2">
@@ -507,10 +544,9 @@ function Auth({ register = false }) {
         </div>
       </div>
 
-      {/* username */}
       <div>
         <label className="text-sm font-medium text-gray-700 mb-1 block">Username</label>
-        <InputWrapper error={errors.username} touched={touched.username}>
+        <InputWrapper error={errors.username} touched={touched["username"]}>
           <input
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -519,17 +555,16 @@ function Auth({ register = false }) {
             placeholder="Choose a username"
             className="w-full outline-none text-sm bg-transparent"
           />
-          {touched.username && !errors.username && (
+          {touched["username"] && !errors.username && (
             <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
           )}
         </InputWrapper>
-        <FieldError msg={touched.username && errors.username} />
+        <FieldError msg={touched["username"] && errors.username} />
       </div>
 
-      {/* password */}
       <div>
         <label className="text-sm font-medium text-gray-700 mb-1 block">Password</label>
-        <InputWrapper error={errors.password} touched={touched.password}>
+        <InputWrapper error={errors.password} touched={touched["password"]}>
           <input
             value={password}
             onChange={(e) => setPassword(e.target.value)}
@@ -538,13 +573,16 @@ function Auth({ register = false }) {
             placeholder="Min. 6 chars, 1 uppercase, 1 number"
             className="w-full outline-none text-sm bg-transparent"
           />
-          <button type="button" onClick={() => setShowPassword((p) => !p)} className="text-gray-400 hover:text-gray-600">
+          <button
+            type="button"
+            onClick={() => setShowPassword((p) => !p)}
+            className="text-gray-400 hover:text-gray-600"
+          >
             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
         </InputWrapper>
-        <FieldError msg={touched.password && errors.password} />
+        <FieldError msg={touched["password"] && errors.password} />
 
-        {/* password strength bar */}
         {password && (
           <div className="mt-2 space-y-1">
             <div className="flex gap-1">
@@ -561,22 +599,19 @@ function Auth({ register = false }) {
               ))}
             </div>
             <p className="text-xs text-gray-400">
-              {[
-                password.length >= 6 && /[A-Z]/.test(password) && /[0-9]/.test(password) && /[^a-zA-Z0-9]/.test(password)
-                  ? "Strong password"
-                  : password.length >= 6 && /[A-Z]/.test(password) && /[0-9]/.test(password)
-                    ? "Good — add a symbol for extra strength"
-                    : "Weak — add uppercase, numbers, symbols"
-              ]}
+              {password.length >= 6 && /[A-Z]/.test(password) && /[0-9]/.test(password) && /[^a-zA-Z0-9]/.test(password)
+                ? "Strong password"
+                : password.length >= 6 && /[A-Z]/.test(password) && /[0-9]/.test(password)
+                  ? "Good — add a symbol for extra strength"
+                  : "Weak — add uppercase, numbers, symbols"}
             </p>
           </div>
         )}
       </div>
 
-      {/* confirm password */}
       <div>
         <label className="text-sm font-medium text-gray-700 mb-1 block">Confirm password</label>
-        <InputWrapper error={errors.confirmPassword} touched={touched.confirmPassword}>
+        <InputWrapper error={errors.confirmPassword} touched={touched["confirmPassword"]}>
           <input
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
@@ -585,11 +620,11 @@ function Auth({ register = false }) {
             placeholder="Re-enter password"
             className="w-full outline-none text-sm bg-transparent"
           />
-          {touched.confirmPassword && !errors.confirmPassword && confirmPassword && (
+          {touched["confirmPassword"] && !errors.confirmPassword && confirmPassword && (
             <CheckCircle2 className="w-4 h-4 text-green-500 shrink-0" />
           )}
         </InputWrapper>
-        <FieldError msg={touched.confirmPassword && errors.confirmPassword} />
+        <FieldError msg={touched["confirmPassword"] && errors.confirmPassword} />
       </div>
 
       <button
@@ -603,22 +638,22 @@ function Auth({ register = false }) {
     </div>
   );
 
-  // ── step map ─────────────────────────────────────────────────────────────
 
-  const stepContent = {
-    "email": renderEmailStep(),
+
+  const stepContent: Record<Step, JSX.Element> = {
+    "email":          renderEmailStep(),
     "login-password": renderLoginPasswordStep(),
-    "login-otp": renderLoginOtpStep(),
-    "reg-verify": renderRegVerifyStep(),
-    "reg-form": renderRegFormStep(),
+    "login-otp":      renderLoginOtpStep(),
+    "reg-verify":     renderRegVerifyStep(),
+    "reg-form":       renderRegFormStep(),
   };
 
-  const headingMap = {
-    "email": register ? "Create your account" : "Welcome back",
+  const headingMap: Record<Step, string> = {
+    "email":          register ? "Create your account" : "Welcome back",
     "login-password": "Welcome back",
-    "login-otp": "Enter login OTP",
-    "reg-verify": "Verify your email",
-    "reg-form": "Complete registration",
+    "login-otp":      "Enter login OTP",
+    "reg-verify":     "Verify your email",
+    "reg-form":       "Complete registration",
   };
 
   const showGoogleLogin = step === "email" || step === "login-password";
@@ -634,7 +669,6 @@ function Auth({ register = false }) {
         >
           <div className={`flex ${register ? "flex-col" : "flex-col-reverse lg:flex-row"} h-full`}>
 
-            {/* ── left panel (login only) ─────────────────────────────── */}
             {!register && (
               <div className="hidden lg:flex flex-col justify-between bg-black p-12 text-white">
                 <motion.div
@@ -662,9 +696,9 @@ function Auth({ register = false }) {
 
                   <div className="grid grid-cols-2 gap-6 mb-12">
                     {[
-                      { icon: Truck, title: "Free Delivery", sub: "On orders above ₹500" },
-                      { icon: Shield, title: "Secure Payment", sub: "100% protected" },
-                      { icon: Package, title: "Easy Returns", sub: "7-day return policy" },
+                      { icon: Truck,       title: "Free Delivery",  sub: "On orders above ₹500" },
+                      { icon: Shield,      title: "Secure Payment", sub: "100% protected" },
+                      { icon: Package,     title: "Easy Returns",   sub: "7-day return policy" },
                       { icon: ShoppingBag, title: "Wide Selection", sub: "Million+ products" },
                     ].map(({ icon: Icon, title, sub }, i) => (
                       <motion.div
@@ -688,9 +722,7 @@ function Auth({ register = false }) {
               </div>
             )}
 
-            {/* ── right panel / form ──────────────────────────────────── */}
             <div className="flex flex-col justify-center p-8 lg:p-15 mx-auto w-full max-w-md">
-              {/* mobile logo */}
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
