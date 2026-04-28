@@ -44,6 +44,7 @@ const NewArrivals: React.FC = () => {
   const getProduct = async () => {
     try {
       const res: any = await newArrivalData()
+      console.log(res);
       const data = res.productList
       if (data) {
         setProducts(data)
