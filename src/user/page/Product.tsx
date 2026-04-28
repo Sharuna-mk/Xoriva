@@ -23,7 +23,7 @@ interface ProductData {
   sizeStock: Record<string, number>;
   description: string;
   material: string;
-  productCare: string;
+ productCare: string[]
 }
 
 const SIMILAR_PRODUCTS = [
