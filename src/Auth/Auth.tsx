@@ -24,7 +24,6 @@ import {
 import { useNavigate } from "react-router";
 import GoogleLogin from "./GoogleLogin";
 
-// ─── helpers ────────────────────────────────────────────────────────────────
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -42,27 +41,26 @@ function validatePassword(v) {
   return "";
 }
 
-function validateUsername(v) {
+function validateUsername(v:any) {
   if (!v.trim()) return "Username is required";
   if (v.trim().length < 3) return "At least 3 characters";
   if (/\s/.test(v)) return "No spaces allowed";
   return "";
 }
 
-function validateConfirm(pass, confirm) {
+function validateConfirm(pass:string, confirm:any) {
   if (!confirm) return "Please confirm your password";
   if (pass !== confirm) return "Passwords do not match";
   return "";
 }
 
-// ─── Toast ──────────────────────────────────────────────────────────────────
 
 function Toast({ msg, type }) {
   if (!msg) return null;
-  const colours = {
+  const colours:any = {
     success: "bg-green-50 border-green-400 text-green-800",
-    error:   "bg-red-50   border-red-400   text-red-800",
-    info:    "bg-gray-50  border-gray-400  text-gray-800",
+    error: "bg-red-50   border-red-400   text-red-800",
+    info: "bg-gray-50  border-gray-400  text-gray-800",
   };
   const Icon = type === "success" ? CheckCircle2 : AlertCircle;
   return (
@@ -77,7 +75,6 @@ function Toast({ msg, type }) {
   );
 }
 
-// ─── FieldError ─────────────────────────────────────────────────────────────
 
 function FieldError({ msg }) {
   if (!msg) return null;
@@ -93,15 +90,15 @@ function FieldError({ msg }) {
   );
 }
 
-// ─── InputWrapper ────────────────────────────────────────────────────────────
+
 
 function InputWrapper({ error, touched, children }) {
   const border =
     touched && error
       ? "border-red-400 focus-within:ring-red-100"
       : touched && !error
-      ? "border-green-400 focus-within:ring-green-100"
-      : "border-gray-300 focus-within:border-black focus-within:ring-gray-100";
+        ? "border-green-400 focus-within:ring-green-100"
+        : "border-gray-300 focus-within:border-black focus-within:ring-gray-100";
   return (
     <div
       className={`flex items-center border rounded-lg px-3 py-2 focus-within:ring-2 transition ${border}`}
@@ -111,15 +108,14 @@ function InputWrapper({ error, touched, children }) {
   );
 }
 
-// ─── OtpInput ────────────────────────────────────────────────────────────────
 
 function OtpInput({ value, onChange, error, touched }) {
   const border =
     touched && error
       ? "border-red-400"
       : value.length === 6
-      ? "border-green-400"
-      : "border-gray-300";
+        ? "border-green-400"
+        : "border-gray-300";
 
   return (
     <div className="relative">
@@ -129,11 +125,10 @@ function OtpInput({ value, onChange, error, touched }) {
           .map((_, i) => (
             <div
               key={i}
-              className={`h-12 border-2 rounded-lg flex items-center justify-center font-bold text-lg transition-colors ${
-                value[i]
+              className={`h-12 border-2 rounded-lg flex items-center justify-center font-bold text-lg transition-colors ${value[i]
                   ? "border-black bg-gray-100"
                   : border + " bg-white"
-              }`}
+                }`}
             >
               {value[i] || ""}
             </div>
@@ -152,27 +147,26 @@ function OtpInput({ value, onChange, error, touched }) {
   );
 }
 
-// ─── Auth ────────────────────────────────────────────────────────────────────
 
 function Auth({ register = false }) {
   const navigate = useNavigate();
 
-  const [email, setEmail]                     = useState("");
-  const [username, setUsername]               = useState("");
-  const [password, setPassword]               = useState("");
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [otp, setOtp]                         = useState("");
-  const [showPassword, setShowPassword]       = useState(false);
+  const [otp, setOtp] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
-  // touched map — tracks which fields the user has interacted with
-  const [touched, setTouched] = useState({});
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
   const touch = (field) => setTouched((p) => ({ ...p, [field]: true }));
 
-  const [step, setStep]       = useState("email");
+  type Step = "email" | "login-password" | "login-otp" | "reg-verify" | "reg-form";
+  const [step, setStep] = useState<Step>("email");
   const [loading, setLoading] = useState(false);
-  const [toast, setToast]     = useState({ msg: "", type: "info" });
+  const [toast, setToast] = useState({ msg: "", type: "info" });
 
-  const [regOtpTimer, setRegOtpTimer]     = useState(0);
+  const [regOtpTimer, setRegOtpTimer] = useState(0);
   const [loginOtpTimer, setLoginOtpTimer] = useState(0);
 
   useEffect(() => {
@@ -192,19 +186,17 @@ function Auth({ register = false }) {
     setTimeout(() => setToast({ msg: "", type: "info" }), 4000);
   };
 
-  // reset touched when step changes
+
   useEffect(() => { setTouched({}); }, [step]);
 
-  // ── live errors ─────────────────────────────────────────────────────────
-  const errors = {
-    email:           validateEmail(email),
-    password:        validatePassword(password),
-    username:        validateUsername(username),
-    confirmPassword: validateConfirm(password, confirmPassword),
-    otp:             otp.length > 0 && otp.length < 6 ? "Enter all 6 digits" : "",
-  };
 
-  // ── handlers ────────────────────────────────────────────────────────────
+  const errors = {
+    email: validateEmail(email),
+    password: validatePassword(password),
+    username: validateUsername(username),
+    confirmPassword: validateConfirm(password, confirmPassword),
+    otp: otp.length > 0 && otp.length < 6 ? "Enter all 6 digits" : "",
+  };
 
   const handleContinue = async () => {
     touch("email");
@@ -219,7 +211,7 @@ function Auth({ register = false }) {
       } else {
         await sendRegistrationOtp();
       }
-    } catch (err) {
+    } catch (err:any) {
       const status = err?.response?.status;
       if (status === 400 || status === 404) {
         await sendRegistrationOtp();
@@ -239,7 +231,7 @@ function Auth({ register = false }) {
       setOtp("");
       setStep("reg-verify");
       showToast("OTP sent! Check your email.", "success");
-    } catch (err) {
+    } catch (err:any) {
       showToast(err?.response?.data?.message ?? "Failed to send OTP.", "error");
     } finally {
       setLoading(false);
@@ -573,8 +565,8 @@ function Auth({ register = false }) {
                 password.length >= 6 && /[A-Z]/.test(password) && /[0-9]/.test(password) && /[^a-zA-Z0-9]/.test(password)
                   ? "Strong password"
                   : password.length >= 6 && /[A-Z]/.test(password) && /[0-9]/.test(password)
-                  ? "Good — add a symbol for extra strength"
-                  : "Weak — add uppercase, numbers, symbols"
+                    ? "Good — add a symbol for extra strength"
+                    : "Weak — add uppercase, numbers, symbols"
               ]}
             </p>
           </div>
@@ -614,19 +606,19 @@ function Auth({ register = false }) {
   // ── step map ─────────────────────────────────────────────────────────────
 
   const stepContent = {
-    "email":          renderEmailStep(),
+    "email": renderEmailStep(),
     "login-password": renderLoginPasswordStep(),
-    "login-otp":      renderLoginOtpStep(),
-    "reg-verify":     renderRegVerifyStep(),
-    "reg-form":       renderRegFormStep(),
+    "login-otp": renderLoginOtpStep(),
+    "reg-verify": renderRegVerifyStep(),
+    "reg-form": renderRegFormStep(),
   };
 
   const headingMap = {
-    "email":          register ? "Create your account" : "Welcome back",
+    "email": register ? "Create your account" : "Welcome back",
     "login-password": "Welcome back",
-    "login-otp":      "Enter login OTP",
-    "reg-verify":     "Verify your email",
-    "reg-form":       "Complete registration",
+    "login-otp": "Enter login OTP",
+    "reg-verify": "Verify your email",
+    "reg-form": "Complete registration",
   };
 
   const showGoogleLogin = step === "email" || step === "login-password";
@@ -670,9 +662,9 @@ function Auth({ register = false }) {
 
                   <div className="grid grid-cols-2 gap-6 mb-12">
                     {[
-                      { icon: Truck,       title: "Free Delivery",  sub: "On orders above ₹500" },
-                      { icon: Shield,      title: "Secure Payment", sub: "100% protected" },
-                      { icon: Package,     title: "Easy Returns",   sub: "7-day return policy" },
+                      { icon: Truck, title: "Free Delivery", sub: "On orders above ₹500" },
+                      { icon: Shield, title: "Secure Payment", sub: "100% protected" },
+                      { icon: Package, title: "Easy Returns", sub: "7-day return policy" },
                       { icon: ShoppingBag, title: "Wide Selection", sub: "Million+ products" },
                     ].map(({ icon: Icon, title, sub }, i) => (
                       <motion.div
