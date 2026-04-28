@@ -1,0 +1,99 @@
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import {
+    addToWishlistAPI,
+    getWishlistDataAPI,
+    removeFromWishlistAPI,
+} from "../services/allAPI";
+
+
+const getHeader = () => {
+    const token = sessionStorage.getItem("Token");
+
+    return {
+        Authorization: `Bearer ${token}`,
+    };
+};
+
+
+
+export const fetchWishlist = createAsyncThunk(
+    "wishlist/get",
+    async () => {
+        const res = await getWishlistDataAPI(getHeader());
+        console.log(res);
+        return res
+    }
+);
+
+export const addToWishList = createAsyncThunk(
+    "wishlist/add",
+    async ({ id }) => {
+        const res = await addToWishlistAPI(id, getHeader());
+        console.log("API RESPONSE:", res);
+        return res
+    }
+);
+
+
+
+
+export const removeFromWishList = createAsyncThunk(
+    "wishlist/remove",
+    async ({ id }) => {
+        await removeFromWishlistAPI(id, getHeader());
+        res = await getWishlistDataAPI(getHeader());
+        console.log(res);
+
+        return res;
+    }
+);
+
+
+
+const wishlistSlice = createSlice({
+    name: "wishlist",
+    initialState: {
+        items: [],
+    },
+    reducers: {},
+    extraReducers: (builder) => {
+        builder
+
+            .addCase(fetchWishlist.fulfilled, (state, action) => {
+                if (Array.isArray(action.payload)) {
+                    state.items = action.payload;
+                } else {
+                    state.items = [];
+                }
+            })
+
+            .addCase(addToWishList.fulfilled, (state, action) => {
+                const newItem = action.payload?.wishlist;
+
+                if (!newItem || !newItem.product) return;
+
+                if (!Array.isArray(state.items)) {
+                    state.items = [];
+                }
+
+                const exists = state.items.some(
+                    (item) => item?.product?._id === newItem.product._id
+                );
+
+                if (!exists) {
+                    state.items.unshift(newItem);
+                }
+            })
+            .addCase(removeFromWishList.fulfilled, (state, action) => {
+                const removedId = action.meta.arg.id;
+
+                if (Array.isArray(state.items)) {
+                    state.items = state.items.filter(
+                        (item) => item.product._id !== removedId
+                    );
+                }
+            });
+    },
+});
+
+export default wishlistSlice.reducer;
