@@ -2,9 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { fetchCart, clearCart, addToCart, decreaseCart,removeFromCart } from '../../store/cartSlice'
-
-
+import { fetchCart, clearCart, addToCart, decreaseCart, removeFromCart } from '../../store/cartSlice';
 
 const PROMOS: Record<string, { label: string; pct: number }> = {
   SAVE10: { label: "SAVE10", pct: 0.1 },
@@ -20,16 +18,16 @@ export default function Checkout() {
   const [toast, setToast] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
   const [checkoutDone, setCheckoutDone] = useState(false);
-  const dispatch = useDispatch()
-  // const cartItems = useSelector((state: any) => state.cart.items);
-  //   console.log(cartItems);
-  const { items, total, error } = useSelector((state: any) => state.cart)
-  console.log(items, total);
+
+  const dispatch = useDispatch();
+  const { items, total, error } = useSelector((state: any) => state.cart);
 
   useEffect(() => {
-    if (error) {
-      alert(error);
-    }
+    dispatch(fetchCart() as any);
+  }, []);
+
+  useEffect(() => {
+    if (error) alert(error);
   }, [error]);
 
   const showToast = (msg: string) => {
@@ -38,18 +36,18 @@ export default function Checkout() {
     setTimeout(() => setToastVisible(false), 2500);
   };
 
-  const changeQty = (id: number, delta: number) => {
-    setCart((prev) =>
-      prev.map((item) =>
-        item.id === id
-          ? { ...item, qty: Math.max(1, Math.min(10, item.qty + delta)) }
-          : item
-      )
-    );
+
+  const changeQty = (productId: string, size: string, delta: number) => {
+    if (delta > 0) {
+      dispatch(addToCart({ productId, size }) as any);
+    } else {
+      dispatch(decreaseCart({ productId, size }) as any);
+    }
   };
 
-  const removeItem = (id: number) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
+
+  const removeItem = (productId: string, size: string) => {
+    dispatch(removeFromCart({ productId, size }) as any);
     showToast("Item removed from bag");
   };
 
@@ -65,19 +63,12 @@ export default function Checkout() {
     }
   };
 
-  const subtotal = total;
-  const hasItems = items.length > 0;
-  const totalItems = items.length;
-  console.log(hasItems);
+  const subtotal = total ?? 0;
+  const hasItems = items?.length > 0;
+  const totalItems = items?.length ?? 0;
   const shipping = hasItems ? SHIPPING : 0;
   const discount = appliedPromo && hasItems ? subtotal * appliedPromo.pct : 0;
   const totalAmount = subtotal + shipping - discount;
-  console.log(totalItems);
-
-
-  useEffect(() => {
-    dispatch(fetchCart());
-  }, [])
 
   if (!items) {
     return <div className="text-center">Loading...</div>;
@@ -99,13 +90,13 @@ export default function Checkout() {
 
         <div className="grid grid-cols-1 lg:grid-cols-[1fr_340px] gap-7 items-start">
 
-          {/* ── LEFT: Cart Items ── */}
+          {/* LEFT: Cart Items */}
           <div>
             {hasItems && (
               <div className="flex justify-end mb-3">
                 <button
                   onClick={() => {
-                    dispatch(clearCart());
+                    dispatch(clearCart() as any);
                     showToast("Bag cleared");
                   }}
                   className="text-xs text-gray-400 underline hover:text-gray-600 transition-colors"
@@ -126,15 +117,13 @@ export default function Checkout() {
                   transition={{ duration: 0.25 }}
                   className="bg-white border border-stone-200 rounded-2xl p-5 mb-3 flex gap-4 shadow-sm"
                 >
-                  {/* Product image placeholder */}
                   <img
                     src={item.thumbnail}
-                    className="w-[88px] h-[104px] bg-stone-100 rounded-xl flex items-center justify-center text-4xl shrink-0" />
-
-
+                    alt={item.title}
+                    className="w-[88px] h-[104px] bg-stone-100 rounded-xl object-cover shrink-0"
+                  />
 
                   <div className="flex flex-col gap-2 flex-1 min-w-0">
-                    {/* Name + Remove */}
                     <div className="flex justify-between items-start gap-2">
                       <div>
                         <p className="text-sm font-semibold text-gray-900">{item.title}</p>
@@ -147,20 +136,15 @@ export default function Checkout() {
                           </span>
                         </div>
                       </div>
+                   
                       <button
-                        onClick={() =>
-                          dispatch(removeFromCart({
-                            productId: item.productId,
-                            size: item.size
-                          }))
-                        }
+                        onClick={() => removeItem(item.productId, item.size)}
                         className="text-xs text-gray-300 hover:text-red-400 transition-colors shrink-0 px-1"
                       >
                         ✕
                       </button>
                     </div>
 
-                    {/* Qty + Price */}
                     {item.stock - item.quantity <= 2 && item.quantity < item.stock && (
                       <p className="text-xs text-orange-500">
                         Only {item.stock - item.quantity} left!
@@ -169,13 +153,9 @@ export default function Checkout() {
 
                     <div className="flex justify-between items-center mt-auto pt-1">
                       <div className="flex items-center border border-stone-200 rounded-xl overflow-hidden">
+                       
                         <button
-                          onClick={() =>
-                            dispatch(decreaseCart({
-                              productId: item.productId,
-                              size: item.size
-                            }))
-                          }
+                          onClick={() => changeQty(item.productId, item.size, -1)}
                           disabled={item.quantity <= 1}
                           className="w-8 h-8 flex items-center justify-center text-lg text-gray-600 hover:bg-stone-50 disabled:text-gray-300 transition-colors"
                         >
@@ -184,13 +164,9 @@ export default function Checkout() {
                         <span className="w-7 text-center text-sm font-medium text-gray-800">
                           {item.quantity}
                         </span>
+                       
                         <button
-                          onClick={() =>
-                            dispatch(addToCart({
-                              productId: item.productId,
-                              size: item.size
-                            }))
-                          }
+                          onClick={() => changeQty(item.productId, item.size, 1)}
                           disabled={item.quantity === item.stock}
                           className="w-8 h-8 flex items-center justify-center text-lg text-gray-600 hover:bg-stone-50 disabled:text-gray-300 transition-colors"
                         >
@@ -206,7 +182,6 @@ export default function Checkout() {
               ))}
             </AnimatePresence>
 
-            {/* Empty state */}
             {!hasItems && (
               <motion.div
                 initial={{ opacity: 0 }}
@@ -220,14 +195,13 @@ export default function Checkout() {
             )}
           </div>
 
-          {/*  Order Summary ── */}
+          {/* RIGHT: Order Summary */}
           <div className="sticky top-6">
             <div className="bg-white border border-stone-200 rounded-2xl p-6 shadow-sm">
               <p className="text-xl font-semibold text-gray-900 mb-5 tracking-tight">
                 Order Summary
               </p>
 
-              {/* Promo code */}
               <div className="flex gap-2 mb-1.5">
                 <input
                   value={promoCode}
@@ -247,16 +221,13 @@ export default function Checkout() {
                 </button>
               </div>
 
-              {promoError && (
-                <p className="text-xs text-red-500 mb-3">{promoError}</p>
-              )}
+              {promoError && <p className="text-xs text-red-500 mb-3">{promoError}</p>}
               {appliedPromo && (
                 <p className="text-xs text-emerald-600 mb-3">
                   ✓ {Math.round(appliedPromo.pct * 100)}% discount applied
                 </p>
               )}
 
-              {/* Line items */}
               <div className="mt-4 space-y-2.5">
                 <div className="flex justify-between text-sm text-gray-500">
                   <span>Subtotal</span>
@@ -264,9 +235,8 @@ export default function Checkout() {
                 </div>
                 <div className="flex justify-between text-sm text-gray-500">
                   <span>Shipping</span>
-                  <span>₹{hasItems ? `${shipping.toFixed(2)}` : "Free"}</span>
+                  <span>{hasItems ? `₹${shipping.toFixed(2)}` : "Free"}</span>
                 </div>
-
 
                 <AnimatePresence>
                   {discount > 0 && (
@@ -288,15 +258,12 @@ export default function Checkout() {
                 </AnimatePresence>
               </div>
 
-              {/* Total */}
               <div className="border-t border-stone-200 mt-4 pt-4 flex justify-between text-base font-semibold text-gray-900">
                 <span>Total</span>
-                <motion.span key={total} initial={{ scale: 1.08 }} animate={{ scale: 1 }}>
+                <motion.span key={totalAmount} initial={{ scale: 1.08 }} animate={{ scale: 1 }}>
                   ₹{totalAmount.toFixed(2)}
                 </motion.span>
               </div>
-
-              {/* Checkout button */}
 
               <motion.button
                 whileTap={hasItems ? { scale: 0.97 } : {}}
@@ -324,7 +291,6 @@ export default function Checkout() {
           </div>
         </div>
       </div>
-
 
       <AnimatePresence>
         {toastVisible && (

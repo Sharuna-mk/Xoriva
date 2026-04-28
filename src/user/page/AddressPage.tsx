@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import { createAddressAPI, AddressAPI, UpdateAddressAPI, deleteAddressAPI } from '../../services/allAPI'
+import { createAddressAPI, AddressAPI, UpdateAddressAPI, deleteAddressAPI } from '../../services/allAPI';
 
 type Address = {
   _id: string;
@@ -12,7 +12,13 @@ type Address = {
   pincode: string;
 };
 
-type FormData = Omit<Address, "id" | "isDefault">;
+type FormData = {
+  name: string;
+  phone: string;
+  address: string;
+  city: string;
+  pincode: string;
+};
 
 const EMPTY_FORM: FormData = {
   name: "",
@@ -21,7 +27,6 @@ const EMPTY_FORM: FormData = {
   city: "",
   pincode: "",
 };
-
 
 function AddressForm({
   initial,
@@ -52,11 +57,7 @@ function AddressForm({
     if (validate()) onSave(form);
   };
 
-  const field = (
-    key: keyof FormData,
-    placeholder: string,
-    type = "text"
-  ) => (
+  const field = (key: keyof FormData, placeholder: string, type = "text") => (
     <div>
       <input
         type={type}
@@ -117,17 +118,15 @@ function AddressForm({
 }
 
 const AddressPage = () => {
-
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [address, setAddress] = useState<any[]>([]);
+  const [address, setAddress] = useState<Address[]>([]);
   const selectedAddr = address.find((a) => a._id === selectedId);
 
   const handleAddNew = async (data: FormData) => {
     try {
-
       const reqBody = {
         fullName: data.name,
         phoneNum: data.phone,
@@ -135,14 +134,9 @@ const AddressPage = () => {
         city: data.city,
         pinCode: data.pincode,
       };
-
       const res = await createAddressAPI(reqBody);
-      console.log(res);
-
       const a = res.newAddress;
-      console.log(a);
-
-      const newAddress = {
+      const newAddress: Address = {
         _id: a._id,
         name: a.fullName,
         phone: a.phoneNum,
@@ -150,10 +144,8 @@ const AddressPage = () => {
         city: a.city,
         pincode: a.pinCode,
       };
-
-      setAddress((prev: any) => [...prev, newAddress]);
+      setAddress((prev) => [...prev, newAddress]);
       setShowAddForm(false);
-
     } catch (error: any) {
       console.log(error.response?.data?.message);
     }
@@ -162,9 +154,7 @@ const AddressPage = () => {
   const fetchAddress = async () => {
     try {
       const res = await AddressAPI();
-      console.log(res);
-
-      const mapped = res.savedAddress.map((a: any) => ({
+      const mapped: Address[] = res.savedAddress.map((a: any) => ({
         _id: a._id,
         name: a.fullName,
         phone: a.phoneNum,
@@ -172,17 +162,13 @@ const AddressPage = () => {
         city: a.city,
         pincode: a.pinCode,
       }));
-
       setAddress(mapped);
-
-      if (mapped.length > 0) {
-        setSelectedId(mapped[0]._id);
-      }
-
+      if (mapped.length > 0) setSelectedId(mapped[0]._id);
     } catch (error: any) {
       console.log(error.response?.data?.message);
     }
   };
+
   const handleSaveEdit = async (id: string, data: FormData) => {
     try {
       const reqBody = {
@@ -192,59 +178,43 @@ const AddressPage = () => {
         city: data.city,
         pinCode: data.pincode,
       };
-
       const res = await UpdateAddressAPI(id, reqBody);
-      console.log(res);
-
-
       const updated = res.updatedAddress;
-
       setAddress((prev) =>
         prev.map((a) =>
           a._id === id
             ? {
-              ...a,
-              name: updated.fullName,
-              phone: updated.phoneNum,
-              address: updated.address,
-              city: updated.city,
-              pincode: updated.pinCode,
-            }
+                ...a,
+                name: updated.fullName,
+                phone: updated.phoneNum,
+                address: updated.address,
+                city: updated.city,
+                pincode: updated.pinCode,
+              }
             : a
         )
       );
-
       setEditId(null);
-
     } catch (error: any) {
       console.log(error.response?.data?.message);
     }
   };
+
   const handleDelete = async (id: string) => {
     try {
+ 
       const res = await deleteAddressAPI(id);
       console.log(res);
-
-
       setAddress((prev) => prev.filter((a) => a._id !== id));
-
-      // reset selected if deleted
       if (selectedId === id) {
         const remaining = address.filter((a) => a._id !== id);
-        if (remaining.length > 0) {
-          setSelectedId(remaining[0]._id);
-        } else {
-          setSelectedId(null);
-        }
+        setSelectedId(remaining.length > 0 ? remaining[0]._id : null);
       }
-
       setDeletingId(null);
-
     } catch (error: any) {
       console.log(error.response?.data?.message);
     }
   };
-
 
   useEffect(() => {
     fetchAddress();
@@ -252,7 +222,6 @@ const AddressPage = () => {
 
   return (
     <div className="min-h-screen bg-stone-100 px-4 pt-6 pb-32 sm:px-6 font-sans">
-      {/* Header */}
       <div className="max-w-xl mx-auto">
         <h2 className="text-2xl font-semibold tracking-tight text-gray-900 mb-1">
           Delivery Address
@@ -262,7 +231,6 @@ const AddressPage = () => {
         </p>
 
         <div className="space-y-3">
-          {/* Address list */}
           <AnimatePresence>
             {address.map((addr) => (
               <motion.div
@@ -278,14 +246,12 @@ const AddressPage = () => {
                   }
                 }}
                 className={`bg-white border rounded-2xl p-4 transition cursor-pointer shadow-sm
-                ${selectedId === addr._id
+                  ${selectedId === addr._id
                     ? "border-gray-900 ring-1 ring-gray-900"
                     : "border-stone-200 hover:border-stone-300"
-                  }
                   }`}
               >
                 <div className="flex justify-between items-start gap-3">
-                  {/* Radio + details */}
                   <div className="flex gap-3 min-w-0">
                     <input
                       type="radio"
@@ -297,11 +263,6 @@ const AddressPage = () => {
                     <div className="text-sm min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <p className="font-semibold text-gray-900">{addr.name}</p>
-                        {addr.isDefault && (
-                          <span className="text-[11px] bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-full font-medium">
-                            Default
-                          </span>
-                        )}
                       </div>
                       <p className="text-gray-500 mt-0.5">{addr.phone}</p>
                       <p className="text-gray-500 leading-snug mt-0.5 break-words">
@@ -310,23 +271,15 @@ const AddressPage = () => {
                     </div>
                   </div>
 
-                  {/* Actions */}
-                  <div
-                    className="flex gap-3 shrink-0"
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                  <div className="flex gap-3 shrink-0" onClick={(e) => e.stopPropagation()}>
                     <button
-                      onClick={() =>
-                        setEditId(editId === addr._id ? null : addr._id)
-                      }
+                      onClick={() => setEditId(editId === addr._id ? null : addr._id)}
                       className="text-xs text-gray-500 underline hover:text-gray-900 transition-colors"
                     >
                       Edit
                     </button>
                     <button
-                      onClick={() =>
-                        setDeletingId(deletingId === addr._id ? null : addr._id)
-                      }
+                      onClick={() => setDeletingId(deletingId === addr._id ? null : addr._id)}
                       className="text-xs text-red-400 underline hover:text-red-600 transition-colors"
                     >
                       Delete
@@ -334,7 +287,6 @@ const AddressPage = () => {
                   </div>
                 </div>
 
-                {/* Delete confirm */}
                 <AnimatePresence>
                   {deletingId === addr._id && (
                     <motion.div
@@ -344,9 +296,7 @@ const AddressPage = () => {
                       className="overflow-hidden"
                     >
                       <div className="mt-4 bg-red-50 border border-red-100 rounded-xl p-3 flex justify-between items-center gap-3">
-                        <p className="text-xs text-red-600 font-medium">
-                          Remove this address?
-                        </p>
+                        <p className="text-xs text-red-600 font-medium">Remove this address?</p>
                         <div className="flex gap-2">
                           <button
                             onClick={() => handleDelete(addr._id)}
@@ -366,7 +316,6 @@ const AddressPage = () => {
                   )}
                 </AnimatePresence>
 
-                {/* Edit form */}
                 <AnimatePresence>
                   {editId === addr._id && (
                     <AddressForm
@@ -376,6 +325,7 @@ const AddressPage = () => {
                         address: addr.address,
                         city: addr.city,
                         pincode: addr.pincode,
+                        
                       }}
                       onSave={(data) => handleSaveEdit(addr._id, data)}
                       onCancel={() => setEditId(null)}
@@ -383,24 +333,10 @@ const AddressPage = () => {
                     />
                   )}
                 </AnimatePresence>
-
-                {/* Set as default */}
-                {!addr.isDefault && editId !== addr._id && deletingId !== addr._id &&  (
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      // handleSetDefault(addr.id);
-                    }}
-                    className="mt-3 text-xs text-gray-400 hover:text-gray-700 transition-colors underline"
-                  >
-                    Set as default
-                  </button>
-                )}
               </motion.div>
             ))}
           </AnimatePresence>
 
-          {/* Add new address */}
           <div className="bg-white border border-stone-200 rounded-2xl p-4 shadow-sm">
             <button
               onClick={() => setShowAddForm(!showAddForm)}
@@ -409,7 +345,6 @@ const AddressPage = () => {
               <span className="text-lg leading-none">+</span>
               Add New Address
             </button>
-
             <AnimatePresence>
               {showAddForm && (
                 <AddressForm
@@ -423,7 +358,6 @@ const AddressPage = () => {
         </div>
       </div>
 
-      {/* Bottom bar */}
       <AnimatePresence>
         {editId === null && deletingId === null && (
           <motion.div
@@ -442,7 +376,6 @@ const AddressPage = () => {
                 {selectedAddr?.city} — {selectedAddr?.pincode}
               </p>
             </div>
-
             <Link to="/payment" state={{ addressId: selectedId }}>
               <button className="bg-gray-900 text-white text-sm font-medium px-6 py-3 rounded-xl hover:bg-gray-700 active:scale-95 transition-all">
                 Continue →

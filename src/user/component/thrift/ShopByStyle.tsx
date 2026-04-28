@@ -27,30 +27,31 @@ interface Style {
   accentColor: string;
   patternType: string;
   items: number;
+  image: string; 
 }
 
 const STYLES: Style[] = [
-  { id: 1, name: "Streetwear", tag: "BOLD DROP", tagline: "Urban edge, oversized fits", accentColor: "#ff4d4d", patternType: "cross", 
-    image:'https://i.pinimg.com/736x/38/f7/16/38f716e1b11848d7db666d63ea29859b.jpg' ,
+  { id: 1, name: "Streetwear", tag: "BOLD DROP", tagline: "Urban edge, oversized fits", accentColor: "#ff4d4d", patternType: "cross",
+    image: 'https://i.pinimg.com/736x/38/f7/16/38f716e1b11848d7db666d63ea29859b.jpg',
     items: 128 },
   { id: 2, name: "Y2K", tag: "EDITOR'S PICK", tagline: "Retro futurism, bold energy", accentColor: "#fff", patternType: "diagonal",
-    image:'https://i.pinimg.com/736x/34/19/9c/34199c864caa8f0640b9c1574fc47f60.jpg',
+    image: 'https://i.pinimg.com/736x/34/19/9c/34199c864caa8f0640b9c1574fc47f60.jpg',
     items: 94, featured: true },
-  { id: 3, name: "Minimalist", tag: "CURATED", tagline: "Clean lines, neutral tones", accentColor: "#999", patternType: "dots", 
-    image:'https://sfconservatoryofdance.org/wp-content/uploads/2024/12/Minimalist-Dress-to-Impress-Outfit-Idea-for-a-Clean-Aesthetic_33.jpeg',
+  { id: 3, name: "Minimalist", tag: "CURATED", tagline: "Clean lines, neutral tones", accentColor: "#999", patternType: "dots",
+    image: 'https://sfconservatoryofdance.org/wp-content/uploads/2024/12/Minimalist-Dress-to-Impress-Outfit-Idea-for-a-Clean-Aesthetic_33.jpeg',
     items: 76 },
-  { id: 4, name: "Vintage 90s", tag: "TIMELESS", tagline: "Thrift classics reimagined", accentColor: "#c8a24a", 
-    image:'https://www.fashionacy.com/wp-content/uploads/2025/01/Casual-Gen-Z-Outfits.webp',
-    patternType: "grid", items: 112 },
-  { id: 5, name: "Office Wear", tag: "REFINED", tagline: "Sharp structured elegance", accentColor: "#4da3ff", 
-    image:'https://th.bing.com/th/id/OIP.G4vhrWY190vPGQ9fU0ooCwHaLH?o=7rm=3&rs=1&pid=ImgDetMain&o=7&rm=3'
-    ,patternType: "wave", items: 63 },
-  { id: 6, name: "Korean Style", tag: "TRENDING", tagline: "Soft layering aesthetics", accentColor: "#c77dff", 
-    image:'https://i.pinimg.com/736x/9c/3a/b8/9c3ab85a0a2c2c001767772e1bd82a80.jpg',
-    patternType: "chevron", items: 89 },
+  { id: 4, name: "Vintage 90s", tag: "TIMELESS", tagline: "Thrift classics reimagined", accentColor: "#c8a24a", patternType: "grid",
+    image: 'https://www.fashionacy.com/wp-content/uploads/2025/01/Casual-Gen-Z-Outfits.webp',
+    items: 112 },
+  { id: 5, name: "Office Wear", tag: "REFINED", tagline: "Sharp structured elegance", accentColor: "#4da3ff", patternType: "wave",
+    image: 'https://th.bing.com/th/id/OIP.G4vhrWY190vPGQ9fU0ooCwHaLH?o=7&rm=3&rs=1&pid=ImgDetMain',
+    items: 63 },
+  { id: 6, name: "Korean Style", tag: "TRENDING", tagline: "Soft layering aesthetics", accentColor: "#c77dff", patternType: "chevron",
+    image: 'https://i.pinimg.com/736x/9c/3a/b8/9c3ab85a0a2c2c001767772e1bd82a80.jpg',
+    items: 89 },
 ];
 
-function StyleCard({ s, inView }: any) {
+function StyleCard({ s, inView }: { s: Style; inView: boolean }) { // ✅ Typed props instead of `any`
   return (
     <div
       className={`
@@ -68,43 +69,33 @@ function StyleCard({ s, inView }: any) {
         transform: inView ? "translateY(0)" : "translateY(20px)",
       }}
     >
-      {/* IMAGE BACKGROUND */}
+   
       <img
         src={s.image}
         alt={s.name}
         className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-40 transition duration-500"
       />
 
-      {/* DARK OVERLAY FOR TEXT READABILITY */}
+      
       <div className="absolute inset-0 bg-black/50" />
 
+ 
+      <div className="absolute inset-0 opacity-20 blur-2xl" />
 
-
-      {/* accent glow */}
-      <div
-        className="absolute inset-0 opacity-20 blur-2xl"
-        
-      />
-
-      {/* CONTENT */}
+     
       <div className="relative z-10">
-        {/* tag */}
         <div className="text-[10px] tracking-[0.2em] text-white/60">
           {s.tag}
         </div>
-
-        {/* title */}
         <h2 className="mt-6 text-2xl sm:text-3xl font-bold tracking-widest text-white">
           {s.name}
         </h2>
-
-        {/* tagline */}
         <p className="mt-2 text-xs sm:text-sm text-white/50">
           {s.tagline}
         </p>
       </div>
 
-      {/* items */}
+      {/* items count */}
       <div className="absolute bottom-3 right-3 text-xs text-white/40 z-10">
         {s.items} items
       </div>
@@ -124,7 +115,7 @@ export default function ShopByStyle() {
 
   return (
     <div className="min-h-screen bg-black text-white px-4 sm:px-10 py-12">
-      
+
       {/* HEADER */}
       <div ref={ref} className="text-center mb-10">
         <h1 className="text-4xl sm:text-6xl font-bold tracking-[0.2em]">

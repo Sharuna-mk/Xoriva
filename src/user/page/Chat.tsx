@@ -1,14 +1,21 @@
 import { useState, useRef, useEffect } from "react";
 import { baseURL } from "../../services/baseURL";
 
+interface Message {
+  role: "user" | "bot";
+  text: string;
+  time?: string;
+}
+
 function Chat() {
-  const [messages, setMessages] = useState([
+  const [messages, setMessages] = useState<Message[]>([
     { role: "bot", text: "Hi! Welcome to Xoriva. How can I help you today?" }
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const messagesEndRef = useRef(null);
+
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -24,7 +31,7 @@ function Chat() {
   const sendMessage = async (text = input) => {
     if (!text.trim() || loading) return;
 
-    const userMessage = { role: "user", text, time: now() };
+    const userMessage: Message = { role: "user", text, time: now() };
     setMessages((prev) => [...prev, userMessage]);
     setInput("");
     setLoading(true);
@@ -48,7 +55,7 @@ function Chat() {
         updated[updated.length - 1] = {
           role: "bot",
           text: "Error connecting to server.",
-    
+          time: "",
         };
         return updated;
       });
@@ -65,20 +72,19 @@ function Chat() {
 
         {/* Header */}
         <div className="flex items-center gap-3 px-4 py-3 bg-[#1a1a2e]">
-          <div className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white font-medium text-sm"
-            style={{ background: "linear-gradient(135deg, #7f77dd, #5dcaa5)" }}>
+          <div
+            className="w-10 h-10 rounded-full flex-shrink-0 flex items-center justify-center text-white font-medium text-sm"
+            style={{ background: "linear-gradient(135deg, #7f77dd, #5dcaa5)" }}
+          >
             X
           </div>
           <div className="flex-1">
             <p className="text-white text-sm font-medium leading-none mb-1">Xoriva Assistant</p>
-            <p className="text-[11px] text-[#9fa8c0] flex items-center gap-1">
-             
-            </p>
+            <p className="text-[11px] text-[#9fa8c0] flex items-center gap-1"></p>
           </div>
-        
         </div>
 
-        {/* Date separator */}
+        
         <div className="flex items-center gap-2 px-4 py-2">
           <div className="flex-1 h-px bg-gray-200" />
           <span className="text-[11px] text-gray-400">Today</span>
@@ -124,7 +130,7 @@ function Chat() {
           <div ref={messagesEndRef} />
         </div>
 
-        {/* Suggestion pills */}
+       
         <div className="flex gap-1.5 px-3 py-2 overflow-x-auto border-t border-gray-100 scrollbar-hide">
           {suggestions.map((q) => (
             <button

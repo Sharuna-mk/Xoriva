@@ -7,11 +7,24 @@ import { ProductInfo } from "../component/individual/ProductInfo";
 import { SimilarProducts } from "../component/individual/SimiliarProducts";
 import { SizeSelector } from "../component/individual/SizeSelector";
 import { Link, useParams } from "react-router-dom";
-import { productAPI } from '../../services/allAPI'
+import { productAPI } from '../../services/allAPI';
 import Reviews from "../component/individual/Review";
 import { ArrowLeft } from "lucide-react";
 
-
+interface ProductData {
+  images: string[];
+  title: string;
+  brand: string;
+  final_price_inr: number;
+  original_price_inr: number;
+  rating: number;
+  reviews: any[];
+  sizes: string[];
+  sizeStock: Record<string, number>;
+  description: string;
+  material: string;
+  productCare: string;
+}
 
 const SIMILAR_PRODUCTS = [
   {
@@ -52,67 +65,65 @@ const SIMILAR_PRODUCTS = [
 ];
 
 export default function Product() {
+  const { id } = useParams();
 
-  const { id } = useParams()
-  const [productData, setProductData] = useState()
+  const [productData, setProductData] = useState<ProductData | null>(null);
 
-  const [selectedSize, setSelectedSize] = useState(null);
-
+  const [selectedSize, setSelectedSize] = useState<string | null>(null);
 
   const getProduct = async () => {
     try {
-      const res = await productAPI(id);
+      const res = await productAPI(id as string);
       console.log(res);
-      setProductData(res.product)
-
+      setProductData(res.product);
     } catch (error) {
       console.log(error);
-
     }
-  }
+  };
 
   useEffect(() => {
     if (id) {
-      getProduct()
+      getProduct();
     }
-  }, [id])
-
-
+  }, [id]);
 
   if (!productData) {
     return <div className="text-center">Loading...</div>;
   }
+
   return (
     <div className="min-h-screen bg-white">
-
       <div className="border-b border-neutral-200" />
       <div className="mt-5 ms-5">
-        <Link to='/' >
-          <ArrowLeft className="border border-black rounded-sm " />
+        <Link to='/'>
+          <ArrowLeft className="border border-black rounded-sm" />
         </Link>
       </div>
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
-          {/* Left: Image Gallery */}
+
+       
           <div className="lg:sticky lg:top-8 lg:self-start">
             <ProductImageGallery images={productData.images} />
           </div>
 
-          {/* Right: Product Details */}
+       
           <div className="space-y-8">
             <ProductDetails
-              name={productData?.title}
-              brand={productData?.brand}
-              price={productData?.final_price_inr}
-              originalPrice={productData?.original_price_inr}
-              rating={productData?.rating}
-              reviewCount={productData?.reviews.length}
+              name={productData.title}
+              brand={productData.brand}
+              price={productData.final_price_inr}
+              originalPrice={productData.original_price_inr}
+              rating={productData.rating}
+              reviewCount={productData.reviews.length}
             />
 
             <div className="border-t border-neutral-200 pt-8">
+          
               <SizeSelector
+                selectedSize={selectedSize}
                 sizes={productData.sizes.map((size) => ({
                   label: size,
                   available: productData.sizeStock[size] > 0,
@@ -121,13 +132,13 @@ export default function Product() {
               />
             </div>
 
-           <ActionButtons selectedSize={selectedSize} productId={id} />
+            <ActionButtons selectedSize={selectedSize} productId={id} />
 
             <DeliveryCheck />
           </div>
         </div>
 
-        {/* Product Information Accordion */}
+      
         <div className="mt-12 max-w-4xl">
           <ProductInfo
             description={productData.description}
@@ -135,8 +146,9 @@ export default function Product() {
             care={productData.productCare}
           />
         </div>
+
         <Reviews reviews={productData.reviews} />
-        {/* Similar Products */}
+
         <div className="mt-16 border-t border-neutral-200">
           <SimilarProducts products={SIMILAR_PRODUCTS} />
         </div>
@@ -144,5 +156,3 @@ export default function Product() {
     </div>
   );
 }
-
-// 

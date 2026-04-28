@@ -66,6 +66,7 @@ const Allproduct = () => {
 
     const getallProduct = async () => {
         try {
+           
             const res = await allProductAPI();
             setProductData(res?.products);
         } catch (error) {
@@ -75,11 +76,11 @@ const Allproduct = () => {
 
     useEffect(() => {
         getallProduct();
-        dispatch(fetchWishlist());
+        dispatch(fetchWishlist() as any);
     }, []);
 
     useEffect(() => {
-        if (query) dispatch(searchProducts(query));
+        if (query) dispatch(searchProducts(query) as any);
     }, [query]);
 
     const brands = ["All", ...Array.from(
@@ -142,7 +143,11 @@ const Allproduct = () => {
                         className="flex items-center gap-2 bg-white border border-gray-300 text-sm px-4 py-2 rounded-full md:hidden shadow-sm"
                     >
                         <SlidersHorizontal className="w-4 h-4" />
-                        Filters {activeFilterCount > 0 && <span className="bg-black text-white text-[10px] px-1.5 py-0.5 rounded-full">{activeFilterCount}</span>}
+                        Filters {activeFilterCount > 0 && (
+                            <span className="bg-black text-white text-[10px] px-1.5 py-0.5 rounded-full">
+                                {activeFilterCount}
+                            </span>
+                        )}
                     </button>
                 </div>
 
@@ -223,10 +228,10 @@ const Allproduct = () => {
                         </div>
                     </aside>
 
-                    {/* PRODUCT AREA */}
+                   
                     <div className="flex-1 min-w-0">
 
-                        {/* DESKTOP TOP BAR */}
+                        
                         <div className="hidden md:flex items-center justify-between mb-4">
                             <div className="flex flex-wrap gap-2">
                                 {activeBrand !== "All" && (
@@ -345,8 +350,8 @@ const Allproduct = () => {
 
                                         <button
                                             onClick={() => {
-                                                dispatch(addToWishList({ id: product._id }))
-                                                    .then(() => dispatch(fetchWishlist()));
+                                                dispatch(addToWishList({ id: product._id }) as any)
+                                                    .then(() => dispatch(fetchWishlist() as any));
                                             }}
                                             className="absolute top-2 right-2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-sm"
                                         >
@@ -360,8 +365,8 @@ const Allproduct = () => {
                                         <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition hidden md:block">
                                             <button
                                                 onClick={() => {
-                                                    dispatch(addToWishList({ id: product._id }))
-                                                        .then(() => dispatch(fetchWishlist()));
+                                                    dispatch(addToWishList({ id: product._id }) as any)
+                                                        .then(() => dispatch(fetchWishlist() as any));
                                                 }}
                                                 className="w-full bg-white text-black text-xs font-semibold py-2 rounded-full flex items-center justify-center gap-1 active:scale-95 transition"
                                             >
@@ -395,7 +400,7 @@ const Allproduct = () => {
                 </div>
             </div>
 
-            {/* MOBILE FILTER DRAWER */}
+           
             <AnimatePresence>
                 {showMobileFilters && (
                     <>
