@@ -1,73 +1,162 @@
-# React + TypeScript + Vite
+# Xoriva E-Commerce Website
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Xoriva is a full-stack MERN-based e-commerce platform designed to provide a seamless online shopping experience with modern UI, secure authentication, product management, cart system, and Stripe payment integration.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Features
 
-## React Compiler
+### User Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+* User registration and login (JWT authentication)
+* Browse products with search and filters
+* View product details
+* Add/remove items from cart
+* Manage delivery addresses
+* Secure checkout using Stripe
+* Order history tracking
 
-## Expanding the ESLint configuration
+### Admin Features (if applicable)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+* Add, update, delete products
+* Manage inventory
+* View orders
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+---
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Tech Stack
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+### Frontend
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+* React.js
+* Redux Toolkit
+* Tailwind CSS / CSS
+* Axios
+* React Router DOM
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Backend
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+* Node.js
+* Express.js
+* MongoDB (Mongoose)
+* JWT Authentication
+* Bcrypt
+* Stripe API
+
+---
+
+## Project Structure
+
+XORIVA/
+
+frontend/
+
+* src/
+
+  * components/
+  * pages/
+  * redux/
+  * services/
+  * App.js
+* package.json
+
+backend/
+
+* controllers/
+* models/
+* routes/
+* middleware/
+* config/
+* server.js
+
+README.md
+
+---
+
+## Installation & Setup
+
+### 1. Clone the repository
+
+git clone (repository link)
+cd xoriva
+
+### 2. Backend Setup
+
+cd backend
+npm install
+
+Create .env file:
+PORT=5000
+MONGO_URI=your_mongodb_connection
+JWT_SECRET=your_secret_key
+STRIPE_SECRET_KEY=your_stripe_key
+
+Run backend:
+npm start
+
+---
+
+### 3. Frontend Setup
+
+cd frontend
+npm install
+npm start
+
+---
+
+## Payment Integration
+
+* Stripe is used for secure payments
+* Checkout session is created from backend
+* Frontend redirects user to Stripe checkout page
+
+---
+
+## Authentication Flow
+
+* Users register/login using email and password
+* Passwords are hashed using bcrypt
+* JWT token is used for protected routes
+
+---
+
+## API Endpoints (Sample)
+
+### Auth
+
+* POST /api/auth/register
+* POST /api/auth/login
+
+### Products
+
+* GET /api/products
+* POST /api/products
+* DELETE /api/products/:id
+
+### Cart
+
+* GET /api/cart
+* POST /api/cart/add
+* DELETE /api/cart/remove
+
+### Orders
+
+* POST /api/orders/create
+* GET /api/orders/user
+
+---
+
+## Future Improvements
+
+* Wishlist feature
+* Product reviews and ratings
+* Admin dashboard analytics
+* Email notifications
+* Coupon system
+
+---
+
+## Author
+
+Developed by sharuna M K
+
