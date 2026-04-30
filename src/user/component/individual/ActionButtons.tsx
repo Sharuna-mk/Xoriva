@@ -104,7 +104,7 @@ export function ActionButtons({ selectedSize, productId }: ActionButtonsProps) {
 
   return (
     <>
-      {/* Toast Container */}
+     
       <div className="fixed bottom-4 right-4 z-50 flex flex-col gap-2 pointer-events-none">
         <AnimatePresence>
           {toasts.map((toast) => (
@@ -153,7 +153,7 @@ export function ActionButtons({ selectedSize, productId }: ActionButtonsProps) {
             </button>
           </Tooltip>
 
-          {/* Wishlist */}
+        
           <Tooltip show={!token} message="Login to save">
             <motion.button
               onClick={handleWishlist}
@@ -175,7 +175,7 @@ export function ActionButtons({ selectedSize, productId }: ActionButtonsProps) {
           </Tooltip>
         </div>
 
-        {/* Buy Now */}
+     
         <Tooltip show={!token} message="Login to buy">
           <button
             onClick={handleBuyNow}

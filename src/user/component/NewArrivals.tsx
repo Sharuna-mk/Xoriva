@@ -41,6 +41,15 @@ const NewArrivals: React.FC = () => {
   const dispatch = useDispatch()
   const { items } = useSelector((state: any) => state.wishlist);
 
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = (message: string) => {
+    setToast(message);
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const token = sessionStorage.getItem("Token");
+
   const getProduct = async () => {
     try {
       const res: any = await newArrivalData()
@@ -67,6 +76,11 @@ const NewArrivals: React.FC = () => {
     <div className="px-4 md:px-10 py-12 bg-[#fafafa]">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
+        {toast && (
+          <div className="fixed bottom-4 right-4 z-50 bg-red-600 text-white text-sm px-4 py-3 rounded shadow-lg">
+            {toast}
+          </div>
+        )}
         <div>
           <h2 className="text-2xl md:text-4xl font-semibold text-gray-900">
             New Arrivals
@@ -82,7 +96,7 @@ const NewArrivals: React.FC = () => {
         </Link>
       </div>
 
-     
+
       <motion.div
         variants={container}
         initial="hidden"
@@ -127,8 +141,13 @@ const NewArrivals: React.FC = () => {
                 </Link>
 
                 {/* Wishlist */}
+
                 <button
                   onClick={() => {
+                    if (!token) {
+                      showToast("Please login to add to wishlist");
+                      return;
+                    }
                     dispatch(addToWishList({ id: product._id }))
                       .then(() => dispatch(fetchWishlist()));
                   }}
@@ -145,6 +164,10 @@ const NewArrivals: React.FC = () => {
                 <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition hidden md:block">
                   <button
                     onClick={() => {
+                      if (!token) {
+                        showToast("Please login to add to wishlist");
+                        return;
+                      }
                       dispatch(addToWishList({ id: product._id }))
                         .then(() => dispatch(fetchWishlist()));
                     }}
@@ -191,13 +214,13 @@ const NewArrivals: React.FC = () => {
           );
         })}
 
-      <div className="flex items-center justify-center">
-           <Link to={'/products'}>
-          <button className="block md:hidden text-sm font-medium text-white bg-black border border-gray-400 shadow-md h-18 w-18 p-1 rounded-full hover:bg-black hover:text-white transition">
-            See all →
-          </button>
-        </Link>
-      </div>
+        <div className="flex items-center justify-center">
+          <Link to={'/products'}>
+            <button className="block md:hidden text-sm font-medium text-white bg-black border border-gray-400 shadow-md h-18 w-18 p-1 rounded-full hover:bg-black hover:text-white transition">
+              See all →
+            </button>
+          </Link>
+        </div>
       </motion.div>
     </div>
   );

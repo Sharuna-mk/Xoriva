@@ -44,10 +44,18 @@ const card = {
 };
 
 const BestSellers: React.FC = () => {
- 
+
   const [products, setProducts] = useState<Product[]>([]);
   const dispatch = useDispatch();
   const { items } = useSelector((state: any) => state.wishlist);
+  const [toast, setToast] = useState<string | null>(null);
+
+  const showToast = (message: string) => {
+    setToast(message);
+    setTimeout(() => setToast(null), 3000);
+  };
+
+  const token = sessionStorage.getItem("Token");
 
   const isInWishlist = (productId: string) => {
     return items?.some((item: any) => item?.product?._id === productId);
@@ -72,6 +80,11 @@ const BestSellers: React.FC = () => {
     <div className="px-4 md:px-10 py-12 bg-[#fafafa]">
 
       <div className="flex items-center justify-between mb-8">
+        {toast && (
+          <div className="fixed bottom-4 right-4 z-50 bg-red-600 text-white text-sm px-4 py-3 rounded shadow-lg">
+            {toast}
+          </div>
+        )}
         <div>
           <h2 className="text-2xl md:text-4xl font-semibold text-gray-900">
             Best Sellers
@@ -95,7 +108,7 @@ const BestSellers: React.FC = () => {
         className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6"
       >
         {products.map((product: Product) => (
-         
+
           <motion.div
             key={product._id}
             variants={card}
@@ -113,10 +126,10 @@ const BestSellers: React.FC = () => {
                   loading="lazy"
                 />
 
-               
+
                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition bg-black/10 backdrop-blur-[1px]" />
 
-               
+
                 <span className="absolute top-2 left-2 text-[10px] bg-black text-white px-2 py-0.5 rounded-full">
                   NEW
                 </span>
@@ -125,9 +138,14 @@ const BestSellers: React.FC = () => {
               {/* Wishlist button */}
               <button
                 onClick={() => {
-                  dispatch(addToWishList({ id: product._id }) as any)
-                    .then(() => dispatch(fetchWishlist() as any));
+                  if (!token) {
+                    showToast("Please login to add to wishlist");
+                    return;
+                  }
+                  dispatch(addToWishList({ id: product._id }))
+                    .then(() => dispatch(fetchWishlist()));
                 }}
+
                 className="absolute top-2 right-2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-sm"
               >
                 <Heart
@@ -137,13 +155,18 @@ const BestSellers: React.FC = () => {
                 />
               </button>
 
-            
+
               <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition hidden md:block">
                 <button
                   onClick={() => {
-                    dispatch(addToWishList({ id: product._id }) as any)
-                      .then(() => dispatch(fetchWishlist() as any));
+                    if (!token) {
+                      showToast("Please login to add to wishlist");
+                      return;
+                    }
+                    dispatch(addToWishList({ id: product._id }))
+                      .then(() => dispatch(fetchWishlist()));
                   }}
+
                   className="w-full bg-white text-black text-xs font-semibold py-2 rounded-full flex items-center justify-center gap-1 hover:bg-white active:scale-95 transition"
                 >
                   <Heart className="w-3.5 h-3.5 text-red-500" />

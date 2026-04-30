@@ -48,6 +48,7 @@ export default function Checkout() {
 
   const removeItem = (productId: string, size: string) => {
     dispatch(removeFromCart({ productId, size }) as any);
+    dispatch(fetchCart())
     showToast("Item removed from bag");
   };
 
