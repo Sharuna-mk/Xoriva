@@ -46,7 +46,7 @@ export const googleLoginAPI = async (token: string) => {
 // product
 
 export const newArrivalData = async () => {
-  return await commonAPI("GET", `${baseURL}/api/new4arrivals`, null, {});
+  return await commonAPI("GET", `${baseURL}/api/newArrivals`, null, {});
 };
 
 export const productAPI = async (id: string) => {
@@ -136,3 +136,4 @@ export const FailPaymentAPI = async (reqBody: unknown) => {
 export const allOrdersAPI = async () => {
   return await commonAPI("GET", `${baseURL}/api/orders`, {}, getAuthHeader());
 };
+

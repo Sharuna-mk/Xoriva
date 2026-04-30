@@ -7,13 +7,21 @@ interface Message {
   time?: string;
 }
 
+const SUGGESTIONS = [
+  { label: "Return policy", message: "What is your return policy?" },
+  { label: "Shipping time", message: "How long does shipping take?" },
+  { label: "Payment methods", message: "What payment methods do you accept?" },
+  { label: "Track order", message: "How can I track my order?" },
+  { label: "Cancel order", message: "How do I cancel my order?" },
+  { label: "Contact Xoriva", message: "How can I contact Xoriva support?" },
+];
+
 function Chat() {
   const [messages, setMessages] = useState<Message[]>([
     { role: "bot", text: "Hi! Welcome to Xoriva. How can I help you today?" }
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -46,7 +54,11 @@ function Chat() {
       const data = await res.json();
       setMessages((prev) => {
         const updated = [...prev];
-        updated[updated.length - 1] = { role: "bot", text: data.reply, time: now() };
+        updated[updated.length - 1] = {
+          role: "bot",
+          text: data.reply,
+          time: now(),
+        };
         return updated;
       });
     } catch {
@@ -64,8 +76,6 @@ function Chat() {
     }
   };
 
-  const suggestions = ["Return policy", "Shipping time", "Payment methods"];
-
   return (
     <div className="flex items-center justify-center bg-gray-100">
       <div className="flex flex-col w-[380px] h-[500px] rounded-2xl overflow-hidden border border-gray-200 bg-white shadow-xl">
@@ -80,11 +90,12 @@ function Chat() {
           </div>
           <div className="flex-1">
             <p className="text-white text-sm font-medium leading-none mb-1">Xoriva Assistant</p>
-            <p className="text-[11px] text-[#9fa8c0] flex items-center gap-1"></p>
+            <p className="text-[11px] text-[#9fa8c0]">Always here to help</p>
           </div>
+      
         </div>
 
-        
+        {/* Date divider */}
         <div className="flex items-center gap-2 px-4 py-2">
           <div className="flex-1 h-px bg-gray-200" />
           <span className="text-[11px] text-gray-400">Today</span>
@@ -119,7 +130,10 @@ function Chat() {
                     </div>
                   ) : (
                     <>
-                      <p className="text-[13px] text-gray-800 leading-relaxed m-0">{msg.text}</p>
+              
+                      <p className="text-[13px] text-gray-800 leading-relaxed m-0 whitespace-pre-line">
+                        {msg.text}
+                      </p>
                       <p className="text-[10px] text-gray-400 mt-1 m-0">{msg.time}</p>
                     </>
                   )}
@@ -130,15 +144,15 @@ function Chat() {
           <div ref={messagesEndRef} />
         </div>
 
-       
         <div className="flex gap-1.5 px-3 py-2 overflow-x-auto border-t border-gray-100 scrollbar-hide">
-          {suggestions.map((q) => (
+          {SUGGESTIONS.map((s) => (
             <button
-              key={q}
-              onClick={() => sendMessage(q)}
-              className="text-[11px] px-3 py-1 rounded-full border border-gray-200 bg-gray-50 text-gray-500 whitespace-nowrap hover:bg-gray-100 transition-colors"
+              key={s.label}
+              onClick={() => sendMessage(s.message)}
+              disabled={loading}
+              className="text-[11px] px-3 py-1 rounded-full border border-gray-200 bg-gray-50 text-gray-500 whitespace-nowrap hover:bg-gray-100 transition-colors disabled:opacity-50"
             >
-              {q}
+              {s.label}
             </button>
           ))}
         </div>
@@ -151,6 +165,7 @@ function Chat() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && sendMessage()}
+            disabled={loading}
           />
           <button
             onClick={() => sendMessage()}

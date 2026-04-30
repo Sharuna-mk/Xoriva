@@ -6,7 +6,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { fetchWishlist, removeFromWishList } from "../../store/wishlistSlice";
 import { ArrowLeft } from "lucide-react";
 
-// ─── Rating Component ─────────────────────────────
+
 const StarRating: React.FC<{ rating: number }> = ({ rating }) => (
   <div className="flex gap-0.5">
     {[1, 2, 3, 4, 5].map((i) => (
@@ -20,7 +20,7 @@ const StarRating: React.FC<{ rating: number }> = ({ rating }) => (
   </div>
 );
 
-// ─── Animations ─────────────────────────────
+
 const container = {
   hidden: {},
   show: { transition: { staggerChildren: 0.08 } },

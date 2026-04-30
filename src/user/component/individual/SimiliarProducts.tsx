@@ -3,7 +3,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 interface Product {
-  id: number;
+  id: string;
   name: string;
   brand: string;
   price: number;
