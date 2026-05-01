@@ -5,21 +5,16 @@ import {
     removeFromWishlistAPI,
 } from "../services/allAPI";
 
-
-const getHeader = () => {
-    const token = sessionStorage.getItem("Token");
-
-    return {
-        Authorization: `Bearer ${token}`,
-    };
-};
-
-
+const token = sessionStorage.getItem('Token')
 
 export const fetchWishlist = createAsyncThunk(
     "wishlist/get",
     async () => {
-        const res = await getWishlistDataAPI(getHeader());
+
+        const reqHeader = {
+            Authorization: `Bearer ${token}`
+        }
+        const res = await getWishlistDataAPI(reqHeader);
         console.log(res);
         return res
     }
@@ -28,7 +23,11 @@ export const fetchWishlist = createAsyncThunk(
 export const addToWishList = createAsyncThunk(
     "wishlist/add",
     async ({ id }) => {
-        const res = await addToWishlistAPI(id, getHeader());
+
+        const reqHeader = {
+            Authorization: `Bearer ${token}`
+        }
+        const res = await addToWishlistAPI(id, reqHeader);
         console.log("API RESPONSE:", res);
         return res
     }
@@ -40,8 +39,12 @@ export const addToWishList = createAsyncThunk(
 export const removeFromWishList = createAsyncThunk(
     "wishlist/remove",
     async ({ id }) => {
-        await removeFromWishlistAPI(id, getHeader());
-        res = await getWishlistDataAPI(getHeader());
+
+        const reqHeader = {
+            Authorization: `Bearer ${token}`
+        }
+        await removeFromWishlistAPI(id, reqHeader);
+        const res = await getWishlistDataAPI(reqHeader);
         console.log(res);
 
         return res;
@@ -85,14 +88,10 @@ const wishlistSlice = createSlice({
                 }
             })
             .addCase(removeFromWishList.fulfilled, (state, action) => {
-                const removedId = action.meta.arg.id;
-
-                if (Array.isArray(state.items)) {
-                    state.items = state.items.filter(
-                        (item) => item.product._id !== removedId
-                    );
+                if (Array.isArray(action.payload)) {
+                    state.items = action.payload;
                 }
-            });
+            })
     },
 });
 

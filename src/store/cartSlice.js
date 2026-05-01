@@ -8,6 +8,8 @@ const getHeader = () => {
     }
 }
 
+
+
 export const fetchCart = createAsyncThunk(
     "cart/get",
     async () => {
@@ -18,7 +20,7 @@ export const fetchCart = createAsyncThunk(
 )
 export const addToCart = createAsyncThunk(
     "cart/add",
-    async ({ productId, size }, { dispatch }) => {
+    async ({ productId, size }, { rejectWithValue }) => {
         try {
 
             await addCartAPI({ productId, size }, getHeader());
@@ -36,7 +38,7 @@ export const addToCart = createAsyncThunk(
 
 export const decreaseCart = createAsyncThunk(
     "cart/decrease",
-    async ({ productId, size }) => {
+    async ({ productId, size }, { rejectWithValue }) => {
         try {
             await decreaseCartAPI({ productId, size }, getHeader())
             const res = await getCartDataAPI(getHeader());
@@ -52,11 +54,11 @@ export const decreaseCart = createAsyncThunk(
 export const removeFromCart = createAsyncThunk(
     "cart/remove",
     async ({ productId, size }) => {
-        const res = await removeItemCartAPI(
-            { productId, size },
-            getHeader()
+        await removeItemCartAPI(
+            { productId, size }, getHeader()
         );
-        return { productId, size };
+        const res = await getCartDataAPI(getHeader());
+        return res;
     }
 );
 
@@ -65,7 +67,7 @@ export const clearCart = createAsyncThunk(
     "cart/clear",
     async () => {
         await clearCartAPI(getHeader());
-        return res;
+        return;
     }
 );
 
@@ -108,12 +110,9 @@ const cartSlice = createSlice({
                 state.error = action.payload?.message || "Update failed";
             })
             .addCase(removeFromCart.fulfilled, (state, action) => {
-                const { productId, size } = action.payload;
-
-                state.items = state.items.filter(
-                    (item) =>
-                        !(item.productId === productId && item.size === size)
-                );
+                if (!action.payload) return;
+                state.items = action.payload.items || [];
+                state.total = action.payload.total || 0;
             })
 
 

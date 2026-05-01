@@ -72,7 +72,9 @@ const BestSellers: React.FC = () => {
   };
 
   useEffect(() => {
+    if(token){
     dispatch(fetchWishlist() as any);
+    }
     getProduct();
   }, []);
 

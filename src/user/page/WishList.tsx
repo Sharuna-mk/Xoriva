@@ -38,11 +38,8 @@ const WishList: React.FC = () => {
   console.log(items);
 
   const handleRemove = (id) => {
-    dispatch(removeFromWishList({ id })).then(() => {
-      dispatch(fetchWishlist());
-    });
+    dispatch(removeFromWishList({ id }));
   };
-
   const [token, setToken] = useState("");
 
   useEffect(() => {
@@ -79,7 +76,8 @@ const WishList: React.FC = () => {
           </div>
 
           {/* Empty State */}
-          {items?.length === 0 && (
+          {items?.length === 0 && 
+          (
             <div className="text-center py-24">
               <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
                 <Heart className="w-6 h-6 text-gray-300" />
@@ -97,90 +95,96 @@ const WishList: React.FC = () => {
             animate="show"
             className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 md:gap-6"
           >
+           
             <AnimatePresence>
-              {items?.map((item: any) => {
-                const product = item.product;
+              {
+                items?.map((item: any) => {
+                  const product = item.product;
 
-                if (!product) return null;
+                  if (!product) return null;
 
-                return (
-                  <Link to={`/product/${product._id}`}>
-                  <motion.div
-                    key={product._id}
-                    variants={card}
-                    exit="exit"
-                    whileHover={{
-                      y: -6,
-                      scale: 1.01,
-                      transition: { duration: 0.2 },
-                    }}
-                    className="group bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
-                  >
-                    {/* Image */}
-                    <div className="relative aspect-[3/4] overflow-hidden">
-
-                      <img
-                        src={product.thumbnail}
-                        alt={product.title}
-                        className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
-                      />
-
-                      {/* Remove */}
-                      <button
-                        onClick={() =>
-                          handleRemove(product._id)
-                        }
-                        className="absolute top-2 right-2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-sm"
+                  return (
+                    <Link to={`/product/${product._id}`}>
+                      <motion.div
+                        key={product._id}
+                        variants={card}
+                        exit="exit"
+                        whileHover={{
+                          y: -6,
+                          scale: 1.01,
+                          transition: { duration: 0.2 },
+                        }}
+                        className="group bg-white border border-gray-100 rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300"
                       >
-                        <Trash2 className="w-4 h-4 text-gray-500" />
-                      </button>
+                        {/* Image */}
+                        <div className="relative aspect-[3/4] overflow-hidden">
 
-                      {/* Discount */}
-                      <span className="absolute bottom-2 left-2 text-[10px] bg-green-600 text-white px-2 py-0.5 rounded-full">
-                        {Math.round(product.discountPercentage)}% OFF
-                      </span>
-                    </div>
+                          <img
+                            src={product.thumbnail}
+                            alt={product.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition duration-500"
+                          />
 
-                    {/* Content */}
-                    <div className="p-3 md:p-4 flex flex-col">
-                      <h3 className="text-sm font-medium text-gray-900 truncate">
-                        {product.title}
-                      </h3>
+                          {/* Remove */}
+                          <button
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleRemove(product._id);
+                            }}
+                            className="absolute top-2 right-2 w-8 h-8 bg-white/90 rounded-full flex items-center justify-center shadow-sm"
+                          >
+                            <Trash2 className="w-4 h-4 text-gray-500" />
+                          </button>
 
-                      <div className="flex items-center gap-1 mt-1">
-                        <StarRating rating={product.rating} />
-                        <span className="text-[11px] text-gray-400">
-                          {product.rating}
-                        </span>
-                      </div>
+                          {/* Discount */}
+                          <span className="absolute bottom-2 left-2 text-[10px] bg-green-600 text-white px-2 py-0.5 rounded-full">
+                            {Math.round(product.discountPercentage)}% OFF
+                          </span>
+                        </div>
 
-                      <div className="flex items-center gap-2 mt-2">
-                        <span className="text-sm font-semibold text-gray-900">
-                          ₹{product.final_price_inr}
-                        </span>
-                        <span className="text-[11px] text-gray-400 line-through">
-                          ₹{product.original_price_inr}
-                        </span>
-                      </div>
+                        {/* Content */}
+                        <div className="p-3 md:p-4 flex flex-col">
+                          <h3 className="text-sm font-medium text-gray-900 truncate">
+                            {product.title}
+                          </h3>
 
-                      {/* CTA */}
-                      <div className="mt-3 flex flex-col gap-2">
-                       
+                          <div className="flex items-center gap-1 mt-1">
+                            <StarRating rating={product.rating} />
+                            <span className="text-[11px] text-gray-400">
+                              {product.rating}
+                            </span>
+                          </div>
 
-                        <button
-                          onClick={() =>
-                            handleRemove(product._id)
-                          }
-                          className="text-[11px] text-gray-400 hover:text-rose-500 transition"
-                        >
-                          Remove
-                        </button>
-                      </div>
-                    </div>
-                  </motion.div>
-                  </Link>
-                );
-              })}
+                          <div className="flex items-center gap-2 mt-2">
+                            <span className="text-sm font-semibold text-gray-900">
+                              ₹{product.final_price_inr}
+                            </span>
+                            <span className="text-[11px] text-gray-400 line-through">
+                              ₹{product.original_price_inr}
+                            </span>
+                          </div>
+
+                          {/* CTA */}
+                          <div className="mt-3 flex flex-col gap-2">
+
+
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                handleRemove(product._id);
+                              }}
+                              className="text-[11px] text-gray-400 hover:text-rose-500 transition"
+                            >
+                              Remove
+                            </button>
+                          </div>
+                        </div>
+                      </motion.div>
+                    </Link>
+                  );
+                })}
             </AnimatePresence>
           </motion.div>
         </div>

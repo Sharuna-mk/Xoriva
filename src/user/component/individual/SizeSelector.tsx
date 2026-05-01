@@ -40,10 +40,9 @@ export function SizeSelector({
             whileTap={size.available ? { scale: 0.95 } : undefined}
             className={`
               relative aspect-square flex items-center justify-center border transition-all
-              ${
-                selectedSize === size.label
-                  ? "border-black bg-black text-white border-2"
-                  : size.available
+              ${selectedSize === size.label
+                ? "border-black bg-black text-white border-2"
+                : size.available
                   ? "border-neutral-300 hover:border-black bg-white"
                   : "border-neutral-200 bg-neutral-50 text-neutral-300 cursor-not-allowed"
               }
@@ -51,14 +50,13 @@ export function SizeSelector({
           >
             <span className="text-sm">{size.label}</span>
 
-            {!size.available && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="w-full h-px bg-neutral-300 rotate-45" />
-              </div>
-            )}
           </motion.button>
         ))}
       </div>
+
+      {selectedSize && sizes.find(s => s.label === selectedSize)?.available === false && (
+        <p className="text-sm text-red-500">This size is out of stock</p>
+      )}
 
       {!selectedSize && (
         <p className="text-sm text-red-500">Please select a size</p>

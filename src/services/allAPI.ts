@@ -7,7 +7,7 @@ export const removeToken = () => sessionStorage.removeItem("Token");
 export const isLoggedIn = () => !!sessionStorage.getItem("Token");
 
 export const getAuthHeader = () => {
-  const token = sessionStorage.getItem("Token");
+  const token = sessionStorage.getItem('Token');
   return token ? { Authorization: `Bearer ${token}` } : {};
 };
 
@@ -67,38 +67,38 @@ export const searchProductAPI = async (query: string) => {
 
 // wishlist
 
-export const addToWishlistAPI = async (id: string) => {
-  return await commonAPI("POST", `${baseURL}/api/wishlist/add/${id}`, {}, getAuthHeader());
+export const addToWishlistAPI = async (id: string,reqHeader:any) => {
+  return await commonAPI("POST", `${baseURL}/api/wishlist/add/${id}`, {}, reqHeader);
 };
 
-export const removeFromWishlistAPI = async (id: string) => {
-  return await commonAPI("DELETE", `${baseURL}/api/wishlist/remove/${id}`, null, getAuthHeader());
+export const removeFromWishlistAPI = async (id: string,reqHeader:any) => {
+  return await commonAPI("DELETE", `${baseURL}/api/wishlist/remove/${id}`, null, reqHeader);
 };
 
-export const getWishlistDataAPI = async () => {
-  return await commonAPI("GET", `${baseURL}/api/wishlist`, {}, getAuthHeader());
+export const getWishlistDataAPI = async (reqHeader:any) => {
+  return await commonAPI("GET", `${baseURL}/api/wishlist`, {}, reqHeader);
 };
 
 // cart
 
-export const addCartAPI = async (reqBody: unknown) => {
-  return await commonAPI("POST", `${baseURL}/api/cart/add`, reqBody, getAuthHeader());
+export const addCartAPI = async (reqBody: unknown,reqHeader:any) => {
+  return await commonAPI("POST", `${baseURL}/api/cart/add`, reqBody, reqHeader);
 };
 
-export const decreaseCartAPI = async (reqBody: unknown) => {
-  return await commonAPI("DELETE", `${baseURL}/api/cart/decrease`, reqBody, getAuthHeader());
+export const decreaseCartAPI = async (reqBody: unknown,reqHeader:any) => {
+  return await commonAPI("DELETE", `${baseURL}/api/cart/decrease`, reqBody, reqHeader);
 };
 
-export const removeItemCartAPI = async (reqBody: unknown) => {
-  return await commonAPI("DELETE", `${baseURL}/api/cart/removeItem`, reqBody, getAuthHeader());
+export const removeItemCartAPI = async (reqBody: unknown,reqHeader:any) => {
+  return await commonAPI("DELETE", `${baseURL}/api/cart/removeItem`, reqBody, reqHeader);
 };
 
-export const clearCartAPI = async () => {
-  return await commonAPI("DELETE", `${baseURL}/api/cart/remove`, {}, getAuthHeader());
+export const clearCartAPI = async (reqHeader:any) => {
+  return await commonAPI("DELETE", `${baseURL}/api/cart/remove`, {}, reqHeader);
 };
 
-export const getCartDataAPI = async () => {
-  return await commonAPI("GET", `${baseURL}/api/cart`, {}, getAuthHeader());
+export const getCartDataAPI = async (reqHeader:any) => {
+  return await commonAPI("GET", `${baseURL}/api/cart`, {}, reqHeader);
 };
 
 // address

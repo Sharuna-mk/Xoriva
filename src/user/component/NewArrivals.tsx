@@ -68,7 +68,9 @@ const NewArrivals: React.FC = () => {
 
 
   useEffect(() => {
+    if(token){
     dispatch(fetchWishlist());
+    }
     getProduct()
   }, [])
 
