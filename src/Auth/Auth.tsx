@@ -69,8 +69,8 @@ function Toast({ msg, type }: ToastProps) {
   if (!msg) return null;
   const colours: Record<ToastType, string> = {
     success: "bg-green-50 border-green-400 text-green-800",
-    error:   "bg-red-50   border-red-400   text-red-800",
-    info:    "bg-gray-50  border-gray-400  text-gray-800",
+    error: "bg-red-50   border-red-400   text-red-800",
+    info: "bg-gray-50  border-gray-400  text-gray-800",
   };
   const Icon = type === "success" ? CheckCircle2 : AlertCircle;
   return (
@@ -148,9 +148,8 @@ function OtpInput({ value, onChange, error, touched }: OtpInputProps) {
           .map((_, i) => (
             <div
               key={i}
-              className={`h-12 border-2 rounded-lg flex items-center justify-center font-bold text-lg transition-colors ${
-                value[i] ? "border-black bg-gray-100" : border + " bg-white"
-              }`}
+              className={`h-12 border-2 rounded-lg flex items-center justify-center font-bold text-lg transition-colors ${value[i] ? "border-black bg-gray-100" : border + " bg-white"
+                }`}
             >
               {value[i] || ""}
             </div>
@@ -173,21 +172,24 @@ function OtpInput({ value, onChange, error, touched }: OtpInputProps) {
 function Auth({ register = false }: { register?: boolean }) {
   const navigate = useNavigate();
 
-  const [email, setEmail]                     = useState("");
-  const [username, setUsername]               = useState("");
-  const [password, setPassword]               = useState("");
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [otp, setOtp]                         = useState("");
-  const [showPassword, setShowPassword]       = useState(false);
+  const [otp, setOtp] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const touch = (field: string) => setTouched((p) => ({ ...p, [field]: true }));
 
-  const [step, setStep]       = useState<Step>("email");
-  const [loading, setLoading] = useState(false);
-  const [toast, setToast]     = useState<{ msg: string; type: ToastType }>({ msg: "", type: "info" });
+  const [step, setStep] = useState<Step>("email");
+  const [loadingCheck, setLoadingCheck] = useState(false);
+  const [loadingPassword, setLoadingPassword] = useState(false);
+  const [loadingOtp, setLoadingOtp] = useState(false);
+  const [loadingRegister, setLoadingRegister] = useState(false);
+  const [toast, setToast] = useState<{ msg: string; type: ToastType }>({ msg: "", type: "info" });
 
-  const [regOtpTimer, setRegOtpTimer]     = useState(0);
+  const [regOtpTimer, setRegOtpTimer] = useState(0);
   const [loginOtpTimer, setLoginOtpTimer] = useState(0);
 
   useEffect(() => {
@@ -210,11 +212,11 @@ function Auth({ register = false }: { register?: boolean }) {
   useEffect(() => { setTouched({}); }, [step]);
 
   const errors = {
-    email:           validateEmail(email),
-    password:        validatePassword(password),
-    username:        validateUsername(username),
+    email: validateEmail(email),
+    password: validatePassword(password),
+    username: validateUsername(username),
     confirmPassword: validateConfirm(password, confirmPassword),
-    otp:             otp.length > 0 && otp.length < 6 ? "Enter all 6 digits" : "",
+    otp: otp.length > 0 && otp.length < 6 ? "Enter all 6 digits" : "",
   };
 
 
@@ -223,7 +225,7 @@ function Auth({ register = false }: { register?: boolean }) {
     touch("email");
     if (errors.email) return showToast(errors.email, "error");
 
-    setLoading(true);
+    setLoadingCheck(true);
     try {
       const res = await getUserList({ email });
       const isVerified = res?.user?.isVerified ?? false;
@@ -240,12 +242,12 @@ function Auth({ register = false }: { register?: boolean }) {
         showToast(err?.response?.data?.message ?? "Something went wrong.", "error");
       }
     } finally {
-      setLoading(false);
+      setLoadingCheck(false);
     }
   };
 
   const sendRegistrationOtp = async () => {
-    setLoading(true);
+    setLoadingRegister(true);
     try {
       await RegSendOTP({ email });
       setRegOtpTimer(30);
@@ -255,7 +257,7 @@ function Auth({ register = false }: { register?: boolean }) {
     } catch (err: any) {
       showToast(err?.response?.data?.message ?? "Failed to send OTP.", "error");
     } finally {
-      setLoading(false);
+      setLoadingRegister(false);
     }
   };
 
@@ -263,7 +265,7 @@ function Auth({ register = false }: { register?: boolean }) {
     touch("otp");
     if (otp.length !== 6) return showToast("Enter a 6-digit OTP", "error");
 
-    setLoading(true);
+    setLoadingRegister(true);
     try {
       const res = await RegVerifyOTP({ email, otp });
       if (res?.user?.otpVerified) {
@@ -276,7 +278,7 @@ function Auth({ register = false }: { register?: boolean }) {
     } catch (err: any) {
       showToast(err?.response?.data?.message ?? "Invalid or expired OTP.", "error");
     } finally {
-      setLoading(false);
+      setLoadingRegister(false);
     }
   };
 
@@ -286,7 +288,7 @@ function Auth({ register = false }: { register?: boolean }) {
       return showToast("Please fix the errors above.", "error");
     }
 
-    setLoading(true);
+    setLoadingRegister(true);
     try {
       const res = await Register({ username, email, password });
       showToast(res?.message ?? "Account created!", "success");
@@ -294,7 +296,7 @@ function Auth({ register = false }: { register?: boolean }) {
     } catch (err: any) {
       showToast(err?.response?.data?.message ?? "Registration failed.", "error");
     } finally {
-      setLoading(false);
+      setLoadingRegister(false);
     }
   };
 
@@ -302,7 +304,7 @@ function Auth({ register = false }: { register?: boolean }) {
     touch("password");
     if (!password) return showToast("Please enter your password", "error");
 
-    setLoading(true);
+    setLoadingPassword(true);
     try {
       const res = await loginPass({ email, password });
       const token = res?.token;
@@ -313,12 +315,12 @@ function Auth({ register = false }: { register?: boolean }) {
     } catch (err: any) {
       showToast(err?.response?.data?.message ?? "Invalid credentials.", "error");
     } finally {
-      setLoading(false);
+      setLoadingPassword(false);
     }
   };
 
   const sendLoginOtp = async () => {
-    setLoading(true);
+    setLoadingOtp(true);
     try {
       await loginSendOTP({ email });
       setLoginOtpTimer(30);
@@ -328,7 +330,7 @@ function Auth({ register = false }: { register?: boolean }) {
     } catch (err: any) {
       showToast(err?.response?.data?.message ?? "Failed to send OTP.", "error");
     } finally {
-      setLoading(false);
+      setLoadingOtp(false);
     }
   };
 
@@ -336,7 +338,7 @@ function Auth({ register = false }: { register?: boolean }) {
     touch("otp");
     if (otp.length !== 6) return showToast("Enter a 6-digit OTP", "error");
 
-    setLoading(true);
+    setLoadingOtp(true);
     try {
       const res = await loginOTP({ email, otp });
       const token = res?.token;
@@ -348,11 +350,11 @@ function Auth({ register = false }: { register?: boolean }) {
     } catch (err: any) {
       showToast(err?.response?.data?.message ?? "Invalid or expired OTP.", "error");
     } finally {
-      setLoading(false);
+      setLoadingOtp(false);
     }
   };
 
-  
+
 
   const renderEmailStep = () => (
     <div className="space-y-4">
@@ -380,10 +382,10 @@ function Auth({ register = false }: { register?: boolean }) {
       <button
         type="button"
         onClick={handleContinue}
-        disabled={loading}
+        disabled={loadingCheck}
         className="w-full bg-black hover:bg-gray-800 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg transition"
       >
-        {loading ? "Checking…" : "Continue"}
+        {loadingCheck ? "Checking…" : "Continue"}
       </button>
     </div>
   );
@@ -436,19 +438,19 @@ function Auth({ register = false }: { register?: boolean }) {
       <button
         type="button"
         onClick={handleLoginPassword}
-        disabled={loading}
+        disabled={loadingPassword || loadingOtp}
         className="w-full bg-black hover:bg-gray-800 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg transition"
       >
-        {loading ? "Signing in…" : "Login"}
+        {loadingPassword ? "Signing in…" : "Login"}
       </button>
 
       <button
         type="button"
         onClick={sendLoginOtp}
-        disabled={loading}
+        disabled={loadingOtp || loadingPassword}
         className="w-full border border-black text-black font-medium py-2.5 rounded-lg hover:bg-gray-50 transition text-sm"
       >
-        {loading ? "Sending…" : "Login with OTP instead"}
+        {loadingOtp ? "Sending…" : "Login with OTP instead"}
       </button>
     </div>
   );
@@ -466,10 +468,10 @@ function Auth({ register = false }: { register?: boolean }) {
       <button
         type="button"
         onClick={handleLoginOtp}
-        disabled={loading}
+        disabled={loadingOtp}
         className="w-full bg-black hover:bg-gray-800 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg transition"
       >
-        {loading ? "Verifying…" : "Verify & Login"}
+        {loadingOtp ? "Verifying…" : "Verify & Login"}
       </button>
 
       <div className="flex justify-between items-center">
@@ -483,7 +485,7 @@ function Auth({ register = false }: { register?: boolean }) {
         <button
           type="button"
           onClick={sendLoginOtp}
-          disabled={loginOtpTimer > 0 || loading}
+          disabled={loginOtpTimer > 0 || loadingOtp}
           className="text-sm text-black underline disabled:opacity-40"
         >
           {loginOtpTimer > 0 ? `Resend in ${loginOtpTimer}s` : "Resend OTP"}
@@ -504,11 +506,10 @@ function Auth({ register = false }: { register?: boolean }) {
 
       <button
         type="button"
-        onClick={handleVerifyRegistrationOtp}
-        disabled={loading}
+        onClick={handleVerifyRegistrationOtp} disabled={loadingRegister}
         className="w-full bg-black hover:bg-gray-800 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg transition"
       >
-        {loading ? "Verifying…" : "Verify Email"}
+        {loadingRegister  ? "Verifying…" : "Verify Email"}
       </button>
 
       <div className="flex justify-between items-center">
@@ -522,7 +523,7 @@ function Auth({ register = false }: { register?: boolean }) {
         <button
           type="button"
           onClick={sendRegistrationOtp}
-          disabled={regOtpTimer > 0 || loading}
+          disabled={regOtpTimer > 0 || loadingRegister}
           className="text-sm text-black underline disabled:opacity-40"
         >
           {regOtpTimer > 0 ? `Resend in ${regOtpTimer}s` : "Resend OTP"}
@@ -628,10 +629,10 @@ function Auth({ register = false }: { register?: boolean }) {
       <button
         type="button"
         onClick={handleRegister}
-        disabled={loading}
+        disabled={loadingRegister}
         className="w-full bg-black hover:bg-gray-800 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg transition"
       >
-        {loading ? "Creating account…" : "Create Account"}
+        {loadingRegister ? "Creating account…" : "Create Account"}
       </button>
     </div>
   );
@@ -639,25 +640,25 @@ function Auth({ register = false }: { register?: boolean }) {
 
 
   const stepContent: Record<Step, () => JSX.Element> = {
-  "email":          renderEmailStep,
-  "login-password": renderLoginPasswordStep,
-  "login-otp":      renderLoginOtpStep,
-  "reg-verify":     renderRegVerifyStep,
-  "reg-form":       renderRegFormStep,
-};
+    "email": renderEmailStep,
+    "login-password": renderLoginPasswordStep,
+    "login-otp": renderLoginOtpStep,
+    "reg-verify": renderRegVerifyStep,
+    "reg-form": renderRegFormStep,
+  };
   const headingMap: Record<Step, string> = {
-    "email":          register ? "Create your account" : "Welcome back",
+    "email": register ? "Create your account" : "Welcome back",
     "login-password": "Welcome back",
-    "login-otp":      "Enter login OTP",
-    "reg-verify":     "Verify your email",
-    "reg-form":       "Complete registration",
+    "login-otp": "Enter login OTP",
+    "reg-verify": "Verify your email",
+    "reg-form": "Complete registration",
   };
 
   const showGoogleLogin = step === "email" || step === "login-password";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center p-4">
-     
+
       <div className={`${register ? "w-full max-w-md" : "w-full max-w-6xl"}`}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -694,9 +695,9 @@ function Auth({ register = false }: { register?: boolean }) {
 
                   <div className="grid grid-cols-2 gap-6 mb-12">
                     {[
-                      { icon: Truck,       title: "Free Delivery",  sub: "On orders above ₹500" },
-                      { icon: Shield,      title: "Secure Payment", sub: "100% protected" },
-                      { icon: Package,     title: "Easy Returns",   sub: "7-day return policy" },
+                      { icon: Truck, title: "Free Delivery", sub: "On orders above ₹500" },
+                      { icon: Shield, title: "Secure Payment", sub: "100% protected" },
+                      { icon: Package, title: "Easy Returns", sub: "7-day return policy" },
                       { icon: ShoppingBag, title: "Wide Selection", sub: "Million+ products" },
                     ].map(({ icon: Icon, title, sub }, i) => (
                       <motion.div
@@ -745,7 +746,7 @@ function Auth({ register = false }: { register?: boolean }) {
                 <Toast msg={toast.msg} type={toast.type} />
 
                 <div className="space-y-6">
-                 {stepContent[step]()} 
+                  {stepContent[step]()}
 
                   {showGoogleLogin && (
                     <>
