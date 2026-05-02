@@ -4,6 +4,7 @@ import { Heart, ShoppingCart, User, Search, Zap, Home, LogOut, Package, ChevronD
 import Logo from "../../assets/Logo.png";
 import { useDispatch, useSelector } from "react-redux";
 import { setQuery, searchProducts } from "../../store/searchSlice";
+import { useLocation } from "react-router-dom";
 
 function Header() {
   const [token, setToken] = useState<string | null>(null);
@@ -11,6 +12,8 @@ function Header() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isThrift = location.pathname === "/thrift";
 
   const { query } = useSelector((state: any) => state.search);
 
@@ -68,16 +71,23 @@ function Header() {
 
         {/* ICONS */}
         <div className="flex items-center gap-5 md:gap-7">
-          <Link to="/" className="relative hidden sm:block group flex flex-col items-center transition">
+          <Link
+            to="/"
+            className={`relative group flex flex-col items-center transition ${isThrift ? "flex" : "hidden sm:flex"
+              }`}
+          >
             <Home size={24} className="w-6 h-6 group-hover:scale-110 transition text-white" />
             <span className="hidden md:block text-xs mt-1 text-white">Home</span>
           </Link>
 
-          <Link to="/thrift" className="relative group flex flex-col items-center transition">
+          <Link
+            to="/thrift"
+            className={`relative group flex flex-col items-center transition ${!isThrift ? "flex" : "hidden sm:flex"
+              }`}
+          >
             <Zap size={24} className="w-6 h-6 group-hover:scale-110 transition text-yellow-400" />
             <span className="hidden md:block text-xs mt-1 text-white">Thrift</span>
           </Link>
-
           {/* WISHLIST */}
           <Link to="/wishlist" className="relative group flex flex-col items-center transition">
             <Heart className="w-6 h-6 group-hover:scale-110 transition text-white" />

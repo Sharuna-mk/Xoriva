@@ -1,7 +1,7 @@
 import React, { useRef } from "react";
 import { ShoppingBag } from "lucide-react";
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+
 type Review = {
   id: number;
   name: string;
@@ -14,7 +14,7 @@ type Review = {
   date: string;
 };
 
-// ─── Data ─────────────────────────────────────────────────────────────────────
+
 const ALL_REVIEWS: Review[] = [
   {
     id: 1,
@@ -24,7 +24,7 @@ const ALL_REVIEWS: Review[] = [
     avatar: "https://randomuser.me/api/portraits/women/44.jpg",
     rating: 5,
     quote:
-      "Ordered a hoodie and it arrived in two days. Quality is insane for the price — super soft, true to size.",
+      "The floral midi dress I ordered fits like a dream. Fabric is lightweight and the print is even prettier in person.",
     tag: "Fashion",
     date: "2d ago",
   },
@@ -36,8 +36,8 @@ const ALL_REVIEWS: Review[] = [
     avatar: "https://randomuser.me/api/portraits/men/32.jpg",
     rating: 5,
     quote:
-      "Finally a site I can trust. Earbuds were exactly as described. Fast shipping, zero hassle returns.",
-    tag: "Electronics",
+      "Bought a kurta set for a wedding — stitching quality is top-notch and it arrived two days early. Absolutely worth it.",
+    tag: "Fashion",
     date: "1w ago",
   },
   {
@@ -48,8 +48,8 @@ const ALL_REVIEWS: Review[] = [
     avatar: "https://randomuser.me/api/portraits/women/68.jpg",
     rating: 5,
     quote:
-      "The skincare range is absolutely amazing. My skin has never felt better. Xoriva is my go-to now.",
-    tag: "Skincare",
+      "The co-ord set I picked is stunning. The material doesn't wrinkle and the fit is true to size. Xoriva is my go-to now.",
+    tag: "Fashion",
     date: "3d ago",
   },
   {
@@ -60,8 +60,8 @@ const ALL_REVIEWS: Review[] = [
     avatar: "https://randomuser.me/api/portraits/men/76.jpg",
     rating: 4,
     quote:
-      "Sneakers look even better in person. Solid build, comfortable from day one. Great value.",
-    tag: "Footwear",
+      "Ordered a linen blazer — looks even better in person. Sharp cut, comfortable all day. Great value for the price.",
+    tag: "Fashion",
     date: "5d ago",
   },
   {
@@ -72,8 +72,8 @@ const ALL_REVIEWS: Review[] = [
     avatar: "https://randomuser.me/api/portraits/women/21.jpg",
     rating: 5,
     quote:
-      "Got a watch as a gift — the recipient was blown away. The presentation box alone is worth it.",
-    tag: "Accessories",
+      "Got an embroidered dress as a gift — she was blown away. The packaging was beautiful and the dress looked straight out of a boutique.",
+    tag: "Fashion",
     date: "1w ago",
   },
   {
@@ -84,7 +84,7 @@ const ALL_REVIEWS: Review[] = [
     avatar: "https://randomuser.me/api/portraits/men/54.jpg",
     rating: 5,
     quote:
-      "Denim jacket fit is perfect. I always worry about online sizing but the size guide was spot-on.",
+      "The corset leather skirt set fit is perfect. I always worry about online sizing but the size guide was spot-on.",
     tag: "Fashion",
     date: "2w ago",
   },
@@ -96,8 +96,8 @@ const ALL_REVIEWS: Review[] = [
     avatar: "https://randomuser.me/api/portraits/women/33.jpg",
     rating: 5,
     quote:
-      "Vitamin C serum changed my skin completely. Packaging is premium, arrived safely. 100% recommend.",
-    tag: "Skincare",
+      "The silk wrap dress drapes beautifully. Packaging was premium and it arrived without a single crease. 100% recommend.",
+    tag: "Fashion",
     date: "4d ago",
   },
   {
@@ -108,11 +108,12 @@ const ALL_REVIEWS: Review[] = [
     avatar: "https://randomuser.me/api/portraits/men/17.jpg",
     rating: 5,
     quote:
-      "The gym gear is outstanding — breathable, well-stitched. Shipped faster than expected.",
-    tag: "Sports",
+      "The athleisure jogger set is outstanding — breathable, well-stitched and stylish enough to wear outside the gym too.",
+    tag: "Fashion",
     date: "6d ago",
   },
-];
+]
+
 
 const PLATFORMS = [
   { name: "Google", score: "4.8", color: "#4285F4" },
@@ -189,8 +190,7 @@ const ReviewCard: React.FC<{ review: Review }> = ({ review }) => (
   </div>
 );
 
-// ─── Marquee row ──────────────────────────────────────────────────────────────
-// Duplicates the items so the loop is seamless
+
 const MarqueeRow: React.FC<{ reviews: Review[]; reverse?: boolean }> = ({
   reviews,
   reverse = false,
@@ -209,7 +209,7 @@ const MarqueeRow: React.FC<{ reviews: Review[]; reverse?: boolean }> = ({
   </div>
 );
 
-// ─── Main component ───────────────────────────────────────────────────────────
+
 const Testimonials: React.FC = () => {
   const half = Math.ceil(ALL_REVIEWS.length / 2);
   const row1 = ALL_REVIEWS.slice(0, half);
@@ -217,7 +217,7 @@ const Testimonials: React.FC = () => {
 
   return (
     <>
-      {/* Inject keyframes once */}
+    
       <style>{`
         @keyframes marquee {
           from { transform: translateX(0); }
@@ -233,9 +233,9 @@ const Testimonials: React.FC = () => {
       `}</style>
 
       <section className="py-16 md:py-24 overflow-hidden bg-white">
-        {/* ── Split header ── */}
+    
         <div className="px-4 md:px-10 max-w-6xl mx-auto mb-12 flex flex-col md:flex-row md:items-end justify-between gap-8">
-          {/* Left: heading */}
+       
           <div>
             <p className="text-[11px] font-bold uppercase tracking-[3px] text-zinc-400 mb-3">
               What they say
@@ -249,7 +249,7 @@ const Testimonials: React.FC = () => {
             </h2>
           </div>
 
-          {/* Right: aggregate score */}
+        
           <div className="flex items-center gap-4 md:pb-1">
             <p className="text-6xl font-extrabold text-gray-900 leading-none tracking-tight">
               4.9
@@ -261,11 +261,11 @@ const Testimonials: React.FC = () => {
           </div>
         </div>
 
-        {/* ── Marquee rows ── */}
+   
         <MarqueeRow reviews={row1} />
         <MarqueeRow reviews={row2} reverse />
 
-        {/* ── Platform scores ── */}
+       
         <div className="px-4 md:px-10 max-w-6xl mx-auto mt-10 flex flex-wrap items-center justify-center gap-3">
           {PLATFORMS.map((p, i) => (
             <React.Fragment key={p.name}>

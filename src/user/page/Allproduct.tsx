@@ -55,24 +55,43 @@ const Allproduct = () => {
     const location = useLocation();
     const [productData, setProductData] = useState<any[]>([]);
     const [activeBrand, setActiveBrand] = useState<string>(location.state?.brand || "All");
+    const [activeGender, setActiveGender] = useState<string>(location.state?.gender || "All");
     const [sortBy, setSortBy] = useState<SortOption>("default");
     const [minRating, setMinRating] = useState<RatingFilter>(0);
     const [showSortDropdown, setShowSortDropdown] = useState(false);
     const [showMobileFilters, setShowMobileFilters] = useState(false);
 
+
     const dispatch = useDispatch();
     const { items } = useSelector((state: any) => state.wishlist);
     const { query, results, loading } = useSelector((state: any) => state.search);
 
+    const getGenderFromCategory = (category: string = "") => {
+        const c = category.toLowerCase();
+        if (c.includes("women") || c.includes("girl")) return "women";
+        if (c.startsWith("men") || c.includes("boy")) return "men";
+        if (c.includes("kid")) return "kids";
+        return "unisex";
+    };
+
     const getallProduct = async () => {
         try {
-           
+
             const res = await allProductAPI();
+            console.log(res);
+            
+            const products = res?.products.map((p: any) => ({
+                ...p,
+                gender: p.gender || getGenderFromCategory(p.category),
+            }));
+
             setProductData(res?.products);
         } catch (error) {
             console.log(error);
         }
     };
+
+
 
     useEffect(() => {
         getallProduct();
@@ -83,6 +102,24 @@ const Allproduct = () => {
         if (query) dispatch(searchProducts(query) as any);
     }, [query]);
 
+    useEffect(() => {
+        if (location.state?.gender) {
+            setActiveGender(location.state.gender);
+        } else {
+            setActiveGender("All");
+        }
+
+        if (location.state?.brand) {
+            setActiveBrand(location.state.brand);
+        } else {
+            setActiveBrand("All");
+        }
+    }, [location.key]);
+
+    useEffect(() => {
+        console.log("gender values in DB:", productData.map(p => ({ title: p.title, gender: p.gender })));
+    }, [productData]);
+
     const brands = ["All", ...Array.from(
         new Set(productData.map((p: any) => p.brand).filter(Boolean))
     )] as string[];
@@ -91,6 +128,7 @@ const Allproduct = () => {
         activeBrand !== "All",
         sortBy !== "default",
         minRating > 0,
+        activeGender !== "All"
     ].filter(Boolean).length;
 
     const dataToShow = (() => {
@@ -99,6 +137,12 @@ const Allproduct = () => {
         if (activeBrand !== "All") {
             data = data.filter((p: any) => p.brand === activeBrand);
         }
+        if (activeGender !== "All") {
+            data = data.filter((p: any) =>
+                p.gender?.toLowerCase().trim() === activeGender.toLowerCase().trim()
+            );
+        }
+
 
         if (minRating > 0) {
             data = data.filter((p: any) => p.rating >= minRating);
@@ -122,6 +166,7 @@ const Allproduct = () => {
         setActiveBrand("All");
         setSortBy("default");
         setMinRating(0);
+        setActiveGender("All");
     };
 
     return (
@@ -173,11 +218,10 @@ const Allproduct = () => {
                                         <button
                                             key={key}
                                             onClick={() => setSortBy(key)}
-                                            className={`text-left text-sm px-2 py-1.5 rounded-lg transition-all ${
-                                                sortBy === key
-                                                    ? "bg-black text-white font-medium"
-                                                    : "text-gray-600 hover:bg-gray-50"
-                                            }`}
+                                            className={`text-left text-sm px-2 py-1.5 rounded-lg transition-all ${sortBy === key
+                                                ? "bg-black text-white font-medium"
+                                                : "text-gray-600 hover:bg-gray-50"
+                                                }`}
                                         >
                                             {SORT_LABELS[key]}
                                         </button>
@@ -192,11 +236,10 @@ const Allproduct = () => {
                                         <button
                                             key={value}
                                             onClick={() => setMinRating(minRating === value ? 0 : value)}
-                                            className={`flex items-center gap-2 text-sm px-2 py-1.5 rounded-lg transition-all ${
-                                                minRating === value
-                                                    ? "bg-black text-white font-medium"
-                                                    : "text-gray-600 hover:bg-gray-50"
-                                            }`}
+                                            className={`flex items-center gap-2 text-sm px-2 py-1.5 rounded-lg transition-all ${minRating === value
+                                                ? "bg-black text-white font-medium"
+                                                : "text-gray-600 hover:bg-gray-50"
+                                                }`}
                                         >
                                             <span>{label}</span>
                                         </button>
@@ -211,15 +254,13 @@ const Allproduct = () => {
                                         <button
                                             key={brand}
                                             onClick={() => setActiveBrand(brand)}
-                                            className={`flex items-center gap-2 text-left text-sm px-2 py-1.5 rounded-lg transition-all ${
-                                                activeBrand === brand
-                                                    ? "bg-black text-white font-medium"
-                                                    : "text-gray-600 hover:bg-gray-50"
-                                            }`}
+                                            className={`flex items-center gap-2 text-left text-sm px-2 py-1.5 rounded-lg transition-all ${activeBrand === brand
+                                                ? "bg-black text-white font-medium"
+                                                : "text-gray-600 hover:bg-gray-50"
+                                                }`}
                                         >
-                                            <span className={`w-3.5 h-3.5 rounded border-2 flex-shrink-0 transition-all ${
-                                                activeBrand === brand ? "bg-white border-white" : "border-gray-400"
-                                            }`} />
+                                            <span className={`w-3.5 h-3.5 rounded border-2 flex-shrink-0 transition-all ${activeBrand === brand ? "bg-white border-white" : "border-gray-400"
+                                                }`} />
                                             {brand}
                                         </button>
                                     ))}
@@ -228,10 +269,10 @@ const Allproduct = () => {
                         </div>
                     </aside>
 
-                   
+
                     <div className="flex-1 min-w-0">
 
-                        
+
                         <div className="hidden md:flex items-center justify-between mb-4">
                             <div className="flex flex-wrap gap-2">
                                 {activeBrand !== "All" && (
@@ -256,14 +297,20 @@ const Allproduct = () => {
                             <p className="text-sm text-gray-400">{dataToShow.length} results</p>
                         </div>
 
+
+                        {activeGender !== "All" && (
+                            <span className="flex items-center gap-1 bg-black text-white text-xs px-2 py-1 rounded-full capitalize">
+                                {activeGender}
+                                <button onClick={() => setActiveGender("All")}><X className="w-3 h-3" /></button>
+                            </span>
+                        )}
                         {/* MOBILE SORT ROW */}
                         <div className="flex gap-2 overflow-x-auto pb-2 md:hidden scrollbar-hide">
                             <div className="relative flex-shrink-0">
                                 <button
                                     onClick={() => setShowSortDropdown(!showSortDropdown)}
-                                    className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-full border transition-all ${
-                                        sortBy !== "default" ? "bg-black text-white border-black" : "bg-white border-gray-300"
-                                    }`}
+                                    className={`flex items-center gap-1 text-xs px-3 py-1.5 rounded-full border transition-all ${sortBy !== "default" ? "bg-black text-white border-black" : "bg-white border-gray-300"
+                                        }`}
                                 >
                                     Sort <ChevronDown className="w-3 h-3" />
                                 </button>
@@ -279,9 +326,8 @@ const Allproduct = () => {
                                                 <button
                                                     key={key}
                                                     onClick={() => { setSortBy(key); setShowSortDropdown(false); }}
-                                                    className={`w-full text-left text-sm px-4 py-2.5 transition-all ${
-                                                        sortBy === key ? "bg-black text-white" : "hover:bg-gray-50"
-                                                    }`}
+                                                    className={`w-full text-left text-sm px-4 py-2.5 transition-all ${sortBy === key ? "bg-black text-white" : "hover:bg-gray-50"
+                                                        }`}
                                                 >
                                                     {SORT_LABELS[key]}
                                                 </button>
@@ -295,9 +341,8 @@ const Allproduct = () => {
                                 <button
                                     key={value}
                                     onClick={() => setMinRating(minRating === value ? 0 : value)}
-                                    className={`flex-shrink-0 text-xs px-3 py-1.5 rounded-full border transition-all ${
-                                        minRating === value ? "bg-black text-white border-black" : "bg-white border-gray-300"
-                                    }`}
+                                    className={`flex-shrink-0 text-xs px-3 py-1.5 rounded-full border transition-all ${minRating === value ? "bg-black text-white border-black" : "bg-white border-gray-300"
+                                        }`}
                                 >
                                     {label}
                                 </button>
@@ -400,7 +445,7 @@ const Allproduct = () => {
                 </div>
             </div>
 
-           
+
             <AnimatePresence>
                 {showMobileFilters && (
                     <>
@@ -432,9 +477,8 @@ const Allproduct = () => {
                                         <button
                                             key={key}
                                             onClick={() => setSortBy(key)}
-                                            className={`text-left text-sm px-3 py-2 rounded-lg transition-all ${
-                                                sortBy === key ? "bg-black text-white font-medium" : "text-gray-600 hover:bg-gray-50"
-                                            }`}
+                                            className={`text-left text-sm px-3 py-2 rounded-lg transition-all ${sortBy === key ? "bg-black text-white font-medium" : "text-gray-600 hover:bg-gray-50"
+                                                }`}
                                         >
                                             {SORT_LABELS[key]}
                                         </button>
@@ -449,9 +493,8 @@ const Allproduct = () => {
                                         <button
                                             key={value}
                                             onClick={() => setMinRating(minRating === value ? 0 : value)}
-                                            className={`text-left text-sm px-3 py-2 rounded-lg transition-all ${
-                                                minRating === value ? "bg-black text-white font-medium" : "text-gray-600 hover:bg-gray-50"
-                                            }`}
+                                            className={`text-left text-sm px-3 py-2 rounded-lg transition-all ${minRating === value ? "bg-black text-white font-medium" : "text-gray-600 hover:bg-gray-50"
+                                                }`}
                                         >
                                             {label}
                                         </button>
@@ -466,13 +509,11 @@ const Allproduct = () => {
                                         <button
                                             key={brand}
                                             onClick={() => setActiveBrand(brand)}
-                                            className={`flex items-center gap-2 text-left text-sm px-3 py-2 rounded-lg transition-all ${
-                                                activeBrand === brand ? "bg-black text-white font-medium" : "text-gray-600 hover:bg-gray-50"
-                                            }`}
+                                            className={`flex items-center gap-2 text-left text-sm px-3 py-2 rounded-lg transition-all ${activeBrand === brand ? "bg-black text-white font-medium" : "text-gray-600 hover:bg-gray-50"
+                                                }`}
                                         >
-                                            <span className={`w-3.5 h-3.5 rounded border-2 flex-shrink-0 ${
-                                                activeBrand === brand ? "bg-white border-white" : "border-gray-400"
-                                            }`} />
+                                            <span className={`w-3.5 h-3.5 rounded border-2 flex-shrink-0 ${activeBrand === brand ? "bg-white border-white" : "border-gray-400"
+                                                }`} />
                                             {brand}
                                         </button>
                                     ))}

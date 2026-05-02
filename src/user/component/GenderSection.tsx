@@ -2,20 +2,25 @@ import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
 import forHer from "../../assets/image.png";
 import forHim from "../../assets/forhim.jpeg";
+import { useNavigate } from "react-router-dom";
 
 const GenderSection = () => {
+  const navigate = useNavigate();
+
   const genderCards = [
     {
       id: "women",
       label: "WOMEN'S EDIT",
       title: "For her",
       image: forHer,
+      gender: "women",
     },
     {
       id: "men",
       label: "MEN'S EDIT",
       title: "For him",
       image: forHim,
+      gender: "men"
     },
   ];
 
@@ -26,13 +31,14 @@ const GenderSection = () => {
           <motion.div
             key={g.id}
             initial={{ opacity: 0, y: 30 }}
+            onClick={() => navigate("/products", { state: { gender: g.gender } })}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1, duration: 0.5 }}
             viewport={{ once: true }}
             whileHover={{ scale: 1.02 }}
             className="relative rounded-2xl sm:rounded-3xl overflow-hidden cursor-pointer h-[260px] sm:h-[340px] md:h-[420px] group"
           >
-          
+
             <motion.img
               src={g.image}
               alt={g.title}
@@ -41,7 +47,7 @@ const GenderSection = () => {
               transition={{ duration: 0.6, ease: "easeOut" }}
             />
 
-          
+
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
 
             {/* Content */}

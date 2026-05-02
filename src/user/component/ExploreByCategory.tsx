@@ -1,5 +1,6 @@
 import React from "react";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
 type Brand = {
   name: string;
   tagline: string;
@@ -61,6 +62,7 @@ const cardVariants = {
 };
 
 const ExploreByCategory: React.FC = () => {
+  const navigate = useNavigate();
   return (
     <section className="px-4 md:px-10 py-14 md:py-20 bg-white">
       {/* Header */}
@@ -87,6 +89,7 @@ const ExploreByCategory: React.FC = () => {
           <motion.button
             key={brand.name}
             variants={cardVariants}
+            onClick={() => navigate("/products", { state: { brand: brand.name } })}
             whileHover={{
               y: -6,
               scale: 1.02,
