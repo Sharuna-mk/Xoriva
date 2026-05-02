@@ -85,7 +85,7 @@ function Toast({ msg, type }: ToastProps) {
   );
 }
 
-// ─── FieldError ──────────────────────────────────────────────────────────────
+
 
 function FieldError({ msg }: { msg: string | false | undefined }) {
   if (!msg) return null;
@@ -100,8 +100,6 @@ function FieldError({ msg }: { msg: string | false | undefined }) {
     </motion.p>
   );
 }
-
-// ─── InputWrapper ─────────────────────────────────────────────────────────────
 
 interface InputWrapperProps {
   error: string | false | undefined;
@@ -125,7 +123,7 @@ function InputWrapper({ error, touched, children }: InputWrapperProps) {
   );
 }
 
-// ─── OtpInput ─────────────────────────────────────────────────────────────────
+
 
 interface OtpInputProps {
   value: string;
@@ -354,7 +352,7 @@ function Auth({ register = false }: { register?: boolean }) {
     }
   };
 
-  // ── step renderers ───────────────────────────────────────────────────────
+  
 
   const renderEmailStep = () => (
     <div className="space-y-4">
@@ -640,14 +638,13 @@ function Auth({ register = false }: { register?: boolean }) {
 
 
 
-  const stepContent: Record<Step, JSX.Element> = {
-    "email":          renderEmailStep(),
-    "login-password": renderLoginPasswordStep(),
-    "login-otp":      renderLoginOtpStep(),
-    "reg-verify":     renderRegVerifyStep(),
-    "reg-form":       renderRegFormStep(),
-  };
-
+  const stepContent: Record<Step, () => JSX.Element> = {
+  "email":          renderEmailStep,
+  "login-password": renderLoginPasswordStep,
+  "login-otp":      renderLoginOtpStep,
+  "reg-verify":     renderRegVerifyStep,
+  "reg-form":       renderRegFormStep,
+};
   const headingMap: Record<Step, string> = {
     "email":          register ? "Create your account" : "Welcome back",
     "login-password": "Welcome back",
@@ -660,6 +657,8 @@ function Auth({ register = false }: { register?: boolean }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center p-4">
+      {stepContent[step]()}
+
       <div className={`${register ? "w-full max-w-md" : "w-full max-w-6xl"}`}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
