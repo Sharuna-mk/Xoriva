@@ -19,8 +19,8 @@ function App() {
     <div>
       <Routes>
         <Route path="/" element={<LandingPage />} />
-        <Route path="/register" element={<Auth register />} />
-        <Route path="/login" element={<Auth />} />
+        <Route path="/register" element={<Auth key="register" register />} />
+        <Route path="/login" element={<Auth  key="login"/>} />
         <Route path="/fashion" element={<FashionPage />} />
         <Route path="/wishlist" element={<WishList />} />
         <Route path="/product/:id" element={<Product />} />

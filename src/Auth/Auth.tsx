@@ -21,7 +21,7 @@ import {
   loginOTP,
   saveToken,
 } from "../services/allAPI";
-import { useNavigate } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 import GoogleLogin from "./GoogleLogin";
 
 
@@ -178,6 +178,7 @@ function Auth({ register = false }: { register?: boolean }) {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [otp, setOtp] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const location = useLocation();
 
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const touch = (field: string) => setTouched((p) => ({ ...p, [field]: true }));
@@ -292,7 +293,7 @@ function Auth({ register = false }: { register?: boolean }) {
     try {
       const res = await Register({ username, email, password });
       showToast(res?.message ?? "Account created!", "success");
-      setTimeout(() => navigate("/login"), 1500);
+      setTimeout(() => navigate("/login", { state: { email } }), 1500);
     } catch (err: any) {
       showToast(err?.response?.data?.message ?? "Registration failed.", "error");
     } finally {
@@ -355,6 +356,13 @@ function Auth({ register = false }: { register?: boolean }) {
   };
 
 
+  useEffect(() => {
+    const passedEmail = location.state?.email;
+    if (passedEmail) {
+      setEmail(passedEmail);
+      setStep("login-password");
+    }
+  }, [location.state]);
 
   const renderEmailStep = () => (
     <div className="space-y-4">
@@ -509,7 +517,7 @@ function Auth({ register = false }: { register?: boolean }) {
         onClick={handleVerifyRegistrationOtp} disabled={loadingRegister}
         className="w-full bg-black hover:bg-gray-800 disabled:opacity-50 text-white font-medium py-2.5 rounded-lg transition"
       >
-        {loadingRegister  ? "Verifying…" : "Verify Email"}
+        {loadingRegister ? "Verifying…" : "Verify Email"}
       </button>
 
       <div className="flex justify-between items-center">
@@ -551,7 +559,7 @@ function Auth({ register = false }: { register?: boolean }) {
             onChange={(e) => setUsername(e.target.value)}
             onBlur={() => touch("username")}
             type="text"
-            placeholder="Choose a username"
+            placeholder="enter username"
             className="w-full outline-none text-sm bg-transparent"
           />
           {touched["username"] && !errors.username && (
@@ -569,16 +577,9 @@ function Auth({ register = false }: { register?: boolean }) {
             onChange={(e) => setPassword(e.target.value)}
             onBlur={() => touch("password")}
             type={showPassword ? "text" : "password"}
-            placeholder="Min. 6 chars, 1 uppercase, 1 number"
+            placeholder="enter password"
             className="w-full outline-none text-sm bg-transparent"
           />
-          <button
-            type="button"
-            onClick={() => setShowPassword((p) => !p)}
-            className="text-gray-400 hover:text-gray-600"
-          >
-            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-          </button>
         </InputWrapper>
         <FieldError msg={touched["password"] && errors.password} />
 
