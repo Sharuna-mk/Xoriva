@@ -657,8 +657,7 @@ function Auth({ register = false }: { register?: boolean }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center p-4">
-      {stepContent[step]()}
-
+     
       <div className={`${register ? "w-full max-w-md" : "w-full max-w-6xl"}`}>
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -746,7 +745,7 @@ function Auth({ register = false }: { register?: boolean }) {
                 <Toast msg={toast.msg} type={toast.type} />
 
                 <div className="space-y-6">
-                  {stepContent[step]}
+                 {stepContent[step]()} 
 
                   {showGoogleLogin && (
                     <>
